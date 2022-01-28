@@ -1,13 +1,35 @@
 import curses
 import logging
+import locale
 
-from typing import Tuple
+
+from typing import Tuple,Optional,Union,Callable,List,Any
 
 #curses stuff :) 
 
 
+#needed for ACS
+curses.initscr()
+
+AC_BULLET = curses.ACS_BULLET
+AC_DIAMOND = curses.ACS_DIAMOND
+AC_CKBOARD = curses.ACS_CKBOARD
+
+
+#color stuff :) 
+curses.start_color()
+
+
+COLOR_RED_BLACK = 1
+
+
+curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
+
+
+
 def curse_init() -> curses.window:
 	'''curses init'''
+	#locale.setlocale(locale.LC_ALL, '')
 	stdscr = curses.initscr()
 	curses.noecho()
 	curses.cbreak()
@@ -15,6 +37,7 @@ def curse_init() -> curses.window:
 	stdscr.nodelay(True)
 	curses.curs_set(0)
 		
+
 
 	return stdscr
 
@@ -60,7 +83,7 @@ def draw_text(win :curses.window,text: str, y :int=-1,x :int=-1) -> None:
 	'''
 		Draw text on the given window.
 		params:
-			stdscr,text
+			win,text
 		   optional:
 			y,x
 	'''
@@ -71,6 +94,122 @@ def draw_text(win :curses.window,text: str, y :int=-1,x :int=-1) -> None:
 	except Exception as e:
 		logging.error(e)
 		pass
+
+def draw_char(win :curses.window,ch: Union[str,bytes,int], y :int=-1,x :int=-1) -> None:
+	'''
+		Draw character on the given window.
+		params:
+			win,text
+		   optional:
+			y,x
+	'''
+	try:	
+		if x == -1:
+			y,x = get_cursor_position(win)
+		win.addch(y,x,ch)
+	except Exception as e:
+		logging.error(e)
+		pass
+
+
+def draw_hline(win :curses.window,ch: str,n: int, y :int=-1,x :int=-1) -> None:
+	'''
+		Draw horizontal line on the given window.
+		params:
+			win,ch,n
+		   optional:
+			y,x
+	'''
+	try:	
+		if x == -1:
+			y,x = get_cursor_position(win)
+		win.hline(y,x,ch,n)
+	except Exception as e:
+		logging.error(e)
+		pass
+
+def draw_vline(win :curses.window,ch: str,n: int, y :int=-1,x :int=-1) -> None:
+	'''
+		Draw vertical line on the given window.
+		params:
+			win,ch,n
+		   optional:
+			y,x
+	'''
+	try:	
+		if x == -1:
+			y,x = get_cursor_position(win)
+		win.vline(y,x,ch,n)
+	except Exception as e:
+		logging.error(e)
+		pass
+
+
+def draw_window_border(win :curses.window,ls :Union[str,bytes,int]=curses.ACS_VLINE,
+					   rs :Union[str,bytes,int]=curses.ACS_VLINE,
+					    ts :Union[str,bytes,int]=curses.ACS_HLINE,
+					     bs :Union[str,bytes,int]=curses.ACS_HLINE,
+					      tl :Union[str,bytes,int]=curses.ACS_ULCORNER,
+					       tr :Union[str,bytes,int]=curses.ACS_URCORNER,
+					        bl :Union[str,bytes,int]=curses.ACS_LLCORNER,
+					         br :Union[str,bytes,int]=curses.ACS_LRCORNER
+						) -> None:
+	'''
+		Draw vertical line on the given window.
+		params:
+			win,left side, right side, top, bottom, upper-left corner,
+			upper-right corner, bottom-left corner, bottom-right corner
+	'''
+	try:	
+		win.border(ls,rs,ts,bs,tl,tr,bl,br)
+	except Exception as e:
+		logging.error(e)
+		pass
+
+
+def color_on(win :curses.window,col_pair :int) -> None:
+	''' Turn on color attribute
+	 params:
+		window, color pair
+	'''
+		
+	try:
+		win.attron(curses.color_pair(col_pair))
+	except Exception as e:
+		logging.error(e)
+		pass
+
+def color_off(win :curses.window,col_pair :int) -> None:
+	''' Turn off color attribute
+	 params:
+		window, color pair
+	'''
+		
+	try:
+		win.attroff(curses.color_pair(col_pair))
+	except Exception as e:
+		logging.error(e)
+		pass
+
+
+def do_with_color(win: curses.window,col_pair :int, func :Callable, args: List[Any]) -> None:
+	'''
+		Turn on color, do stuff, turn off color
+	 params:
+		window,color pair, function to call, function arguments
+	'''
+
+	
+	color_on(win,col_pair)	
+
+	try:
+		func(*args)
+	except Exception as e:
+		logging.error(e)
+
+	color_off(win,col_pair)	
+
+
 
 
 
