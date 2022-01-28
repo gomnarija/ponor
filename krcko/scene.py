@@ -287,7 +287,12 @@ class Scene:
 			try:
 				with open(sys_file_path,"r") as sys_file:
 					ret : Dict[str,krcko.System] = {}
-					exec(sys_file.read(),globals(),ret)#exec system class
+					try:
+						exec(sys_file.read(),globals(),ret)#exec system class
+					except Exception as e:
+						logging.error("Failed to execute system: " + str(e))
+						return			
+
 					if 'sys_instance' not in ret:
 						logging.error("System file doesn't have sys_instance")
 						pass
@@ -331,23 +336,31 @@ class Scene:
 		'''	
 		Systems setup 
 		'''
-		for sys_type in self.m_systems.keys():
-			self.m_systems[sys_type].setup()
+		try:
+			for sys_type in self.m_systems.keys():
+				self.m_systems[sys_type].setup()
+		except Exception as e:
+			logging.error("System setup failed: " + str(e))
+
 	def update(self) -> None:
 		'''	
 		Systems update
 		'''
-		for sys_type in self.m_systems.keys():
-			self.m_systems[sys_type].update()
-
+		try:
+			for sys_type in self.m_systems.keys():
+				self.m_systems[sys_type].update()
+		except Exception as e:
+			logging.error("Systems update failed " + str(e))
 
 	def cleanup(self) -> None:
 		'''	
 		Systems cleanup
 		'''
-		for sys_type in self.m_systems.keys():
-			self.m_systems[sys_type].cleanup()
-
+		try:
+			for sys_type in self.m_systems.keys():
+				self.m_systems[sys_type].cleanup()
+		except Exception as e:
+			logging.error("Systems cleanup failed " + str(e))
 
 
 
