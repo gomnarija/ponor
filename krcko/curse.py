@@ -20,10 +20,14 @@ AC_CKBOARD = curses.ACS_CKBOARD
 curses.start_color()
 
 
-COLOR_RED_BLACK = 1
+COLOR_RED_BLACK   :int = 1
+COLOR_GREEN_BLACK :int = 2
+COLOR_BLUE_BLACK  :int = 3
 
 
 curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
+curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+curses.init_pair(3, curses.COLOR_BLUE, curses.COLOR_BLACK)
 
 
 
@@ -58,6 +62,16 @@ def curse_update(win :curses.window) -> None:
 	'''refresh window'''
 	win.refresh()
 	win.clear()
+
+
+def create_sub_window(win :curses.window, lines :int, cols :int, y :int, x :int) -> curses.window:
+	''' Generate new sub window at y,x with size lines,cols '''
+	
+	try:
+		return win.subwin(lines,cols,y,x)	
+	except Exception as e:
+		logging.error("Sub windowing failed :" + str(e))
+		return win#TODO:
 
 def get_window_size(win :curses.window) -> Tuple[int,int]:
 	'''
