@@ -3,7 +3,7 @@ from recordclass import recordclass
 import os
 import sys
 import inspect
-from typing import Any,Dict,Iterator,List
+from typing import Any,Dict,Iterator,List,Generator
 import logging
 
 import krcko.core as krcko
@@ -26,13 +26,16 @@ class Scene:
 	'''
 
 
-	def __init__(self,name :str ="bane"):
+	def __init__(self,name :str):
 		self.name :str	    		 	 = name #scene name
 		self.m_entities :Dict[int,Dict[str,Any]] = {} #dict for storing entities, entity_id : {component_type : {component},  ... } 
+		self.m_groups	:Dict[int,set[int]]	 = {} #dict for storing entity groups, group_id : set[entity_id,entity_id...]
 		self.m_components :Dict[str,set]  	 = {} #dict for keeping track of components, component_type : (eid,eid,eid)
 		self.m_entity_names :Dict[str,int]	 = {} #dict for keeping track of entity names, entity_name : eid 
+		self.m_group_names :Dict[str,int]	 = {} #dict for keeping track of group names, group_name : gid 
 		self.m_purgatory :set   		 = set() #set for keeping track of entities that are waiting to be deleted
 		self.m_next_eid :int 			 = 0 #next avaliable entity_id
+		self.m_next_gid :int 			 = 0 #next avaliable group_id
 		self.m_systems :Dict[str,krcko.System]	 = {} #dict for storing systems, {system_type : system }
 		self.game				 = None #parent game object
 	
@@ -40,6 +43,52 @@ class Scene:
 		'''add game'''
 		self.game = game
 
+	def add_entities_to_group(self, gid: int, *eids: int) -> None:
+		'''Add entities to group 
+		 params:
+			*eids, gid
+		'''
+		if not self.has_group(gid):
+			logging.error("Scene doesn't have group with id : " + str(gid))
+			return
+		
+		#add eids to group
+		for eid in eids:
+			if not self.has_entity(eid):
+				logging.error("Scene doesn't have entity with id : " + str(eid))
+				return
+			self.m_groups[gid].add(eid)
+			
+
+	def add_group(self, *eids :int, group_name :str = "group") -> int:
+		'''Create group, add entities
+		 params:
+			*eids
+		   optional:
+			group_name
+		'''
+		#create new group
+		#and add entites to it
+		self.m_groups[self.m_next_gid] = set()
+		self.add_entities_to_group(self.m_next_gid,*eids)
+
+		#group with that name already exists, add index at
+		# the end of the name
+		index :int = 1
+		o_group_name = group_name
+		while group_name in self.m_group_names:
+			group_name = o_group_name + " " + str(index)
+			index += 1
+		
+		self.m_group_names[group_name] = self.m_next_gid
+
+
+		self.m_next_gid += 1
+		return self.m_next_gid-1 
+
+
+
+		  
 	def add_entity(self, *comps, ent_name :str ="entity") -> int:
 		'''
 		  Add entity to Scene
@@ -127,7 +176,18 @@ class Scene:
 		return self.m_entities[eid][comp_type]
 		
 
-	def gen_entities(self,comp_type: str) -> Iterator[Dict]:
+	def gen_group(self,gid :int) -> Generator[int,None,None]:
+		'''Generator for group members
+		 params:
+			gid
+		'''
+		if not self.has_group(gid):
+			logging.error("Scene doesn't have group with id : " + str(gid))
+			return
+		for eid in self.m_groups[gid]:
+			yield eid
+
+	def gen_entities(self,comp_type: str) -> Generator[Dict,None,None]:
 		'''
 		Generator for entities that have component type.
 	 
@@ -144,7 +204,7 @@ class Scene:
 			yield self.m_entities[eid]
 
 
-	def gen_components(self,comp_type: str) -> Iterator[recordclass]:
+	def gen_components(self,comp_type: str) -> Generator[recordclass,None,None]:
 		'''
 		Generator for components of given type.
 		
@@ -217,6 +277,10 @@ class Scene:
 		'''
 		return eid in self.m_entities.keys()
 
+	
+	def has_group(self, gid: int) -> bool:
+		'''Check if scene has group'''
+		return gid in self.m_groups.keys()
 
 		
 	def entity_has_component(self, eid: int, comp_type: str) -> bool:
