@@ -3,6 +3,7 @@ from krcko.component import *
 from krcko.utils import *
 from krcko.curse import *
 from krcko.scene import *
+from krcko.math import *
 
 
 from typing import Dict,Tuple,Deque,Optional

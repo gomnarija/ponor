@@ -1,0 +1,8 @@
+{
+"component": "floor", 
+	"fields": 
+	{
+		"ascii": 26, 	
+		"floor_tiles": [] 
+	}
+}

@@ -6,9 +6,6 @@ import sys
 
 import definitions as defs
 
-PATTERNS_PATH = defs.ROOT_DIR_PATH + "/res/patterns/"
-
-
 
 def gen_pattern(comp_name : str, comp_fields : dict, patterns_path :str = None) -> None:
         '''
@@ -26,7 +23,7 @@ def gen_pattern(comp_name : str, comp_fields : dict, patterns_path :str = None) 
         '''
 
         if not patterns_path:
-                patterns_path = PATTERNS_PATH
+                patterns_path = defs.PAT_DIR_PATH
 
 	#fill up the pattern dict
         pat: Dict[str,Any] = {}
@@ -61,7 +58,7 @@ def hook_component(d : dict) -> Any:
 
 
 
-def load_component(path :str) -> recordclass:
+def load_component(path :str) -> Any:
         '''
          Loads JSON component/pattern file into recordclass.
 

@@ -1,0 +1,9 @@
+{
+"component": "wall", 
+	"fields": 
+	{
+		"ascii": 26,
+		"height": 0,
+		"width" : 0
+	}
+}
