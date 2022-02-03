@@ -32,6 +32,7 @@ class Scene:
 		self.m_groups	:Dict[int,set[int]]	 = {} #dict for storing entity groups, group_id : set[entity_id,entity_id...]
 		self.m_components :Dict[str,set]  	 = {} #dict for keeping track of components, component_type : (eid,eid,eid)
 		self.m_entity_names :Dict[str,int]	 = {} #dict for keeping track of entity names, entity_name : eid 
+		self.m_same_ent_names :Dict[str, int]    = {} #dict keeping track of indexing names
 		self.m_group_names :Dict[str,int]	 = {} #dict for keeping track of group names, group_name : gid 
 		self.m_purgatory :set   		 = set() #set for keeping track of entities that are waiting to be deleted
 		self.m_next_eid :int 			 = 0 #next avaliable entity_id
@@ -39,6 +40,7 @@ class Scene:
 		self.m_systems :Dict[str,krcko.System]	 = {} #dict for storing systems, {system_type : system }
 		self.game				 = None #parent game object
 	
+
 	def add_game(self, game) -> None:
 		'''add game'''
 		self.game = game
@@ -107,13 +109,15 @@ class Scene:
 
 		#entity with that name already exists, add index at
 		# the end of the name
-		index :int = 1
-		o_ent_name = ent_name
-		while ent_name in self.m_entity_names:
-			ent_name = o_ent_name + " " + str(index)
-			index += 1
+		if ent_name in self.m_same_ent_names.keys():
+			self.m_same_ent_names[ent_name] += 1
+			ent_name += " " + str(self.m_same_ent_names[ent_name])
+		else:
+			self.m_same_ent_names[ent_name] = 0
+
 		
 		self.m_entity_names[ent_name] = self.m_next_eid
+
 
 
 		self.m_next_eid += 1
@@ -197,7 +201,7 @@ class Scene:
 		'''
 
 		if not comp_type in self.m_components.keys():
-			logging.error("No components of type: " + comp_type)
+			#logging.error("No components of type: " + comp_type)
 			return None
 	
 		for eid in self.m_components[comp_type]:
@@ -233,8 +237,22 @@ class Scene:
 		if ent_name in self.m_entity_names:
 			return self.m_entity_names[ent_name]
 		else:
-			logging.error("No entity with name: " + ent_name)
+			logging.warning("No entity with name: " + ent_name)
 			return -1
+
+
+	def get_entity_name(self, eid :int) -> str:
+		
+		'''
+			Get entity name from eid
+		'''
+		
+		if eid in self.m_entity_names.values():
+			return list(self.m_entity_names.keys())[list(self.m_entity_names.values()).index(eid)]
+		else:
+			logging.warning("No entity name for eid : " + str(eid))
+			return ""
+			
 
 
 	def get_entity_from_name(self,ent_name : str) -> dict:
