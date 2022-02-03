@@ -5,6 +5,8 @@ import locale
 
 from typing import Tuple,Optional,Union,Callable,List,Any
 
+
+
 #curses stuff :) 
 
 
@@ -157,6 +159,22 @@ def draw_vline(win :curses.window,ch: str,n: int, y :int=-1,x :int=-1) -> None:
 	except Exception as e:
 		logging.error(e)
 		pass
+
+
+def draw_rectangle(win :curses.window,ch :str, rect) -> None:
+	'''
+		Draw a rectangle
+	'''
+
+	if rect.height > rect.width:
+		x :int 
+		for x in range(rect.x, rect.right):
+			draw_vline(win, ch, rect.height, rect.y, x)
+	else:
+		y :int
+		for y in range(rect.y, rect.bottom):
+			draw_hline(win, ch, rect.width, y, rect.x)
+
 
 
 def draw_window_border(win :curses.window,ls :Union[str,bytes,int]=curses.ACS_VLINE,
