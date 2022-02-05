@@ -45,6 +45,7 @@ class DungeonGenerator(krcko.System):
 
 		self.gen_room_entities(rooms, room_rects, hallways)
 		self.gen_hallway_entities(hallways)
+	
 		
 
 	def update(self):
@@ -92,7 +93,7 @@ class DungeonGenerator(krcko.System):
 			floor_component = floor_component_fact(krcko.AC_BULLET, rects)
 
 			#room component:
-			room_component = room_component_fact(room_rects[rooms.index(room)], wall_eids)	
+			room_component = room_component_fact(room_rects[rooms.index(room)], wall_eids, [])	
 			
 			#create new room entity
 			self.m_room_eids_table[rooms.index(room)] = self.scene.add_entity(floor_component,room_component,  ent_name = "room")
@@ -145,25 +146,39 @@ class DungeonGenerator(krcko.System):
 			#hallway component
 			# rooms
 			hallway_component = hallway_component_fact(room_eids)
+
 	
 
 			#create hallway entity	
 			hallway_eids.append(self.scene.add_entity(floor_component, hallway_component, ent_name = "hallway"))
 	
+			#add hallway eid to rooms
+			room_eid :int
+			for room_eid in room_eids:
+				room_ent = self.scene.get_entity(room_eid)
+				
+				#check if entity is really room, probably should do something about this
+				# entity checking#TODO
+				if not 'room' in room_ent.keys():
+					logging.error("failed to get room entity")
+					continue
+
+				#append last added hallway
+				room_ent['room'].hallways.append(hallway_eids[-1])
+
+
 
 		#create hallway group	
 		self.scene.add_group(*hallway_eids, group_name="hallways")
 
 
-
 	def trim_wall(self, wall :krcko.rectangle, room :List[krcko.rectangle]) ->List[krcko.rectangle]:
 		'''Trim a given wall if it overlaps with rect'''
 		
-	
 		#recursion end
 		if len(room) == 0:
 			return [wall]
-	
+
 		#finished ones	
 		trimmed :List[rectangle] = []
 
@@ -173,14 +188,18 @@ class DungeonGenerator(krcko.System):
 		#check rect overlaps the wall
 		they_overlap :bool
 		overlap_rect :krcko.rectangle
-		they_overlap, overlap_rect = wall.overlap(rect) 
+		they_overlap, overlap_rect  = wall.overlap(rect)
 
-		#if they don't overlap go for the next rect 
-		if not they_overlap: 
-			return self.trim_wall(wall,room[1:])
+		#if wall and rectangle don't ovelarp, continue
+		# with the next rectangle
+		if not they_overlap:
+			return self.trim_wall(wall, room[1:])
 
-		#if they, crop the wall
+
+		#if they do overlap 
+		# crop the wall
 		trimmed_rects :List[krcko.rectangle] = self.do_crop(overlap_rect, wall)
+		#trim newly cropped parts
 		for t_rect in trimmed_rects:
 			trimmed += self.trim_wall(t_rect, room[1:])
 
@@ -208,11 +227,14 @@ class DungeonGenerator(krcko.System):
 			room_and_hallways += [*hallway]
 
 
+
+		
+
 		for rect in room:
 
 			#get the rect edges
-			top_rect :krcko.rectangle 	= krcko.rectangle(1, rect.width + 2,rect.top - 1,rect.left - 1)		
-			bottom_rect :krcko.rectangle 	= krcko.rectangle(1, rect.width + 2,rect.bottom,rect.left - 1)		
+			top_rect :krcko.rectangle 	= krcko.rectangle(1, rect.width, rect.top - 1,rect.left )		
+			bottom_rect :krcko.rectangle 	= krcko.rectangle(1, rect.width, rect.bottom,rect.left)		
 			left_rect :krcko.rectangle 	= krcko.rectangle(rect.height, 1,  rect.top,rect.left - 1)		
 			right_rect :krcko.rectangle 	= krcko.rectangle(rect.height, 1,  rect.top,rect.right)		
 			
@@ -650,7 +672,7 @@ class DungeonGenerator(krcko.System):
 			a_rect = a_room[cur_rightest_index]
 			#x is the most right in the room, y is somewhere random 
 			# on the most right rectangle
-			goal_point = krcko.point(self.random.randint(a_rect.top,a_rect.bottom - 1),a_rect.right - 1)	
+			goal_point = krcko.point(self.random.randint(a_rect.top,a_rect.bottom - 1),a_rect.right)	
 	
 	
 			#connect start and goal
@@ -672,7 +694,7 @@ class DungeonGenerator(krcko.System):
 			#y is highest in the room, x is somewhere random 
 			# on the highest rectangle
 			start_point = krcko.point(b_rect.top,self.random.randint(b_rect.left,b_rect.right - 1))	
-		
+		 
 			#find the lowest rectangle in a_room
 			cur_lowest_index :int = 0
 		
@@ -683,7 +705,7 @@ class DungeonGenerator(krcko.System):
 			a_rect = a_room[cur_lowest_index]
 			#y is lowest in the room , x is somewhere random 
 			# on the lowest rectangle
-			goal_point = krcko.point(a_rect.bottom - 1,self.random.randint(a_rect.left,a_rect.right - 1))	
+			goal_point = krcko.point(a_rect.bottom,self.random.randint(a_rect.left,a_rect.right - 1))	
 		
 			#connect start and goal
 			return self.connect_points(start_point,goal_point,"vertical", room_rect_edge) 
@@ -713,8 +735,8 @@ class DungeonGenerator(krcko.System):
 				rect.x = min(hallway[j].x, hallway[i].x)
 				rect.y = min(hallway[j].y, hallway[i].y)
 
-				rect.height = max(1,abs(hallway[i].y - hallway[j].y) + 1) 
-				rect.width  = max(1,abs(hallway[i].x - hallway[j].x) + 1) 
+				rect.height = max(1,abs(hallway[i].y - hallway[j].y) + (1 if i==1 else 0))#middle one needs to be a bit longer :/
+				rect.width  = max(1,abs(hallway[i].x - hallway[j].x) + (1 if i==1 else 0))# same
 
 				j+= 1
 				i+= 1
