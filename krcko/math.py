@@ -1,5 +1,6 @@
 import math
 from typing import Tuple
+import logging
 
 #math stuff :)
 
@@ -49,10 +50,12 @@ class rectangle:
 		return self.width * self.height
 
 	def contains_point(self, p :point) -> bool:
-		return p.y >= self.top and p.y <= self.bottom\
-			and p.x >= self.left and p.x <= self.right
+		return p.y >= self.top and p.y < self.bottom\
+			and p.x >= self.left and p.x < self.right
 
-	
+
+
+
 	def overlap(self, rect :'rectangle') -> Tuple[bool, 'rectangle']:
 		
 		overlap_rect :rectangle = rectangle(0,0,0,0)

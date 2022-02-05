@@ -22,14 +22,22 @@ AC_CKBOARD = curses.ACS_CKBOARD
 curses.start_color()
 
 
-COLOR_RED_BLACK   :int = 1
-COLOR_GREEN_BLACK :int = 2
-COLOR_BLUE_BLACK  :int = 3
-
+COLOR_RED_BLACK		:int = 1
+COLOR_GREEN_BLACK	:int = 2
+COLOR_YELLOW_BLACK	:int = 3
+COLOR_BLUE_BLACK	:int = 4
+COLOR_MAGENTA_BLACK	:int = 5
+COLOR_CYAN_BLACK	:int = 6
+COLOR_WHITE_BLACK	:int = 7
 
 curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
 curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
-curses.init_pair(3, curses.COLOR_BLUE, curses.COLOR_BLACK)
+curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK)
+curses.init_pair(5, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+curses.init_pair(6, curses.COLOR_CYAN, curses.COLOR_BLACK)
+curses.init_pair(7, curses.COLOR_WHITE, curses.COLOR_BLACK)
+
 
 
 
@@ -70,7 +78,10 @@ def create_sub_window(win :curses.window, lines :int, cols :int, y :int, x :int)
 	''' Generate new sub window at y,x with size lines,cols '''
 	
 	try:
-		return win.subwin(lines,cols,y,x)	
+		sub = win.subwin(lines,cols,y,x)	
+		sub.keypad(True)
+		sub.nodelay(True)
+		return sub
 	except Exception as e:
 		logging.error("Sub windowing failed :" + str(e))
 		return win#TODO:
@@ -128,7 +139,7 @@ def draw_char(win :curses.window,ch: Union[str,bytes,int], y :int=-1,x :int=-1) 
 		pass
 
 
-def draw_hline(win :curses.window,ch: str,n: int, y :int=-1,x :int=-1) -> None:
+def draw_hline(win :curses.window,ch: Union[str,bytes,int],  n: int, y :int=-1,x :int=-1) -> None:
 	'''
 		Draw horizontal line on the given window.
 		params:
@@ -144,7 +155,7 @@ def draw_hline(win :curses.window,ch: str,n: int, y :int=-1,x :int=-1) -> None:
 		logging.error(e)
 		pass
 
-def draw_vline(win :curses.window,ch: str,n: int, y :int=-1,x :int=-1) -> None:
+def draw_vline(win :curses.window,ch: Union[str,bytes,int], n: int, y :int=-1,x :int=-1) -> None:
 	'''
 		Draw vertical line on the given window.
 		params:

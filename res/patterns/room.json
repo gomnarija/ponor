@@ -3,6 +3,7 @@
 	"fields": 
 	{
 		"room_rect"	: "rectangle", 	
-		"walls" 	: [] 
+		"walls" 	: [],
+		"hallways"	: [] 
 	}
 }
