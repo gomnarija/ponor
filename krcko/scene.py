@@ -2,6 +2,7 @@ import json
 from recordclass import recordclass
 import os
 import sys
+import traceback
 import inspect
 from typing import Any,Dict,Iterator,List,Generator
 import logging
@@ -187,7 +188,8 @@ class Scene:
 		'''
 		if not self.has_group(gid):
 			logging.error("Scene doesn't have group with id : " + str(gid))
-			return
+			raise StopIteration
+
 		for eid in self.m_groups[gid]:
 			yield eid
 
@@ -202,8 +204,8 @@ class Scene:
 
 		if not comp_type in self.m_components.keys():
 			#logging.error("No components of type: " + comp_type)
-			return None
-	
+			raise StopIteration
+		
 		for eid in self.m_components[comp_type]:
 			yield self.m_entities[eid]
 
@@ -219,7 +221,7 @@ class Scene:
 
 		if not comp_type in self.m_components.keys():
 			logging.error("No components of type: " + comp_type)
-			return None
+			raise StopIteration
 	
 		for ent in self.m_components[comp_type]:
 			yield self.m_entities[ent][comp_type]
@@ -284,7 +286,26 @@ class Scene:
 
 		return self.m_entities[eid]
 	
+	def get_group(self, gid :int) -> str:
+		''' Get group'''
 		
+		if not self.has_group(gid):
+			logging.warning("No group with group id" + str(gid))
+			return {}
+
+		return self.m_groups[gid]
+
+
+	def get_group_from_name(self, group_name :str) -> dict:
+		'''Get group'''
+		
+		if not group_name in self.m_group_names.keys():
+			logging.warning("No group with name :" + group_name)
+			return {}
+
+		return self.get_group(self.m_group_names[group_name]) 
+
+
 	def has_entity(self, eid: int) -> bool:
 
 		'''
@@ -370,9 +391,9 @@ class Scene:
 				with open(sys_file_path,"r") as sys_file:
 					ret : Dict[str,krcko.System] = {}
 					try:
-						exec(sys_file.read(),globals(),ret)#exec system class
+						krcko.execute(sys_file.read(),globals=globals(),locals=ret)#exec system class
 					except Exception as e:
-						logging.error("Failed to execute system: " + str(e))
+						logging.error("Failed to execute system: " + sys_file_path + " : "+ str(e))
 						return			
 
 					if 'sys_instance' not in ret:
@@ -399,14 +420,16 @@ class Scene:
 		for comp_file_path in krcko.gen_files(path):
 			if ".json" not in comp_file_path:#ignore non json files
 				continue
-			
-			comp,fact = krcko.load_component(comp_file_path)
+			ret = krcko.load_component(comp_file_path)
+			if ret is None:
+				logging.error("failed to load component")
+				return
+			comp,fact = ret
 			if not comp is None:
 				comps.append(comp)
 
 		#dir name 		
-		ent_name = path.split(os.sep)[-1]
-
+		ent_name = os.path.basename(path)
 		#create new entity
 		if len(comps) > 0:
 			eid = self.add_entity(*comps,ent_name = ent_name)
@@ -422,17 +445,24 @@ class Scene:
 			for sys_type in self.m_systems.keys():
 				self.m_systems[sys_type].setup()
 		except Exception as e:
-			logging.error("System setup failed: " + str(e))
+			cl, exc, tb = sys.exc_info()
+			line_number = traceback.extract_tb(tb)[-1][1]
+			logging.error(sys_type + ": startup failed at line " + str(line_number) + ": " +str(e))
+
 
 	def update(self) -> None:
 		'''	
 		Systems update
 		'''
+		sys_type : str
+
 		try:
 			for sys_type in self.m_systems.keys():
 				self.m_systems[sys_type].update()
 		except Exception as e:
-			logging.error("Systems update failed " + str(e))
+			cl, exc, tb = sys.exc_info()
+			line_number = traceback.extract_tb(tb)[-1][1]
+			logging.error(sys_type + ": update failed at line " + str(line_number) + ": " +str(e))
 
 	def cleanup(self) -> None:
 		'''	
@@ -442,7 +472,10 @@ class Scene:
 			for sys_type in self.m_systems.keys():
 				self.m_systems[sys_type].cleanup()
 		except Exception as e:
-			logging.error("Systems cleanup failed " + str(e))
+			cl, exc, tb = sys.exc_info()
+			line_number = traceback.extract_tb(tb)[-1][1]
+			logging.error(sys_type + ": cleanup failed at line " + str(line_number) + ": " +str(e))
+
 
 
 
@@ -476,6 +509,7 @@ def load_scene(path :str, name :str =None) -> Scene:
 				line = line.rstrip()
 				if line[0] == "[":
 					state = line
+					continue
 				if state == "[SYSTEM]":
 					scene.load_systems(line)	
 				if state == "[ENTITY]":
