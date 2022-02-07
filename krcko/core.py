@@ -4,6 +4,7 @@ from krcko.utils import *
 from krcko.curse import *
 from krcko.scene import *
 from krcko.math import *
+from krcko.turnmachine import *
 
 
 from typing import Dict,Tuple,Deque,Optional
@@ -11,9 +12,11 @@ from collections import deque
 import logging
 import time
 import statistics
+from configparser import ConfigParser
 
 
 
+	
 
 
 class Clock:
@@ -102,19 +105,46 @@ class Clock:
 
 
 
-
 class Game:
 	'''
 		Game class
 	'''
 	def __init__(self,name):
-		self.name :str    	     = name
-		self.scenes :Dict[str,Scene] = {}
-		self.main_window	     = None
-		self.clock :Clock	     = Clock()
-		self.current_scene :str	     = ""
-		self.should_quit   :bool     = False
-		self.max_fps :int  	     = 126
+		self.name :str    	     = name #name of the game
+		self.scenes :Dict[str,Scene] = {} #dict containing loaded scenes
+		self.main_window	     = None #main window object (curses)
+		self.clock :Clock	     = Clock() #clock object
+		self.current_scene :str	     = "" #name of the current scene
+		self.should_quit   :bool     = False #
+		self.max_fps :int  	     = 126 #
+		self.m_keys 		     = [] #key buffer
+		self.turn_machine	     = TurnMachine() #turn machine object
+		self.controls		     = ConfigParser()
+
+
+		self.control_defaults()
+
+
+
+	def control_defaults(self):
+		'''set default controls'''
+
+		#player controls
+		self.controls['PLAYER'] =\
+			{
+				'MOVE_UP' 	: 'KEY_UP',
+				'MOVE_DOWN' 	: 'KEY_DOWN',
+				'MOVE_LEFT' 	: 'KEY_LEFT',
+				'MOVE_RIGHT' 	: 'KEY_RIGHT',
+			}
+
+
+
+	def load_controls(self, path :str) -> None:
+		'''load controls from a file '''
+		self.controls.read(path)
+
+
 
 	def add_scene(self,scene: Scene) -> None:
 		'''Add scene to game'''
@@ -127,6 +157,22 @@ class Game:
 	def quit(self) -> None:
 		'''Game should quit'''
 		self.should_quit = True
+
+
+	def detect_keys(self) -> None:
+		key = get_key(self.main_window)
+	
+		if key != "EMPTY":
+			self.m_keys.append(key)
+
+
+	def get_key(self) -> str:
+		
+		if len(self.m_keys) > 0:
+			return self.m_keys[-1]
+		else:
+			return "EMPTY"
+
 
 	def setup(self) -> None:
 		'''Game setup:
@@ -152,16 +198,35 @@ class Game:
 	def update(self) -> None:
 		'''
 			Game update:
+				clear main window
+				detect_keys
 				update current scene.
+				pop keys
+				next turn.
 				update main window.
 				sync the clock.
 		'''
+			
+		#clear main window
+		if not self.main_window is None:
+			curse_clear(self.main_window)
+	
+		
+		#input handling
+		self.detect_keys()
+
 		#update current scene
 		if self.current_scene == "":
 			logging.error("Game: "+self.name+" current scene missing.")
 			return
-
+		#
 		self.scenes[self.current_scene].update()
+
+		if len(self.m_keys) > 0:
+			self.m_keys.pop()
+
+		#next turn action
+		self.turn_machine.next()
 
 		#update main window
 		if not self.main_window is None:
@@ -181,8 +246,4 @@ class Game:
 
 		if not self.main_window is None:
 			curse_terminate(self.main_window)
-
-
-
-
 

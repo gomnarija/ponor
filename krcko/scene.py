@@ -441,14 +441,15 @@ class Scene:
 		'''	
 		Systems setup 
 		'''
-		try:
-			for sys_type in self.m_systems.keys():
+	
+		for sys_type in self.m_systems.keys():
+			try:
 				self.m_systems[sys_type].setup()
-		except Exception as e:
-			cl, exc, tb = sys.exc_info()
-			line_number = traceback.extract_tb(tb)[-1][1]
-			logging.error(sys_type + ": startup failed at line " + str(line_number) + ": " +str(e))
-
+			except Exception as e:
+				cl, exc, tb = sys.exc_info()
+				line_number = traceback.extract_tb(tb)[-1][1]
+				logging.error(sys_type + ": startup failed at line " + str(line_number) + ": " +str(e))
+				continue
 
 	def update(self) -> None:
 		'''	
@@ -456,26 +457,28 @@ class Scene:
 		'''
 		sys_type : str
 
-		try:
-			for sys_type in self.m_systems.keys():
+		for sys_type in self.m_systems.keys():
+			try:
 				self.m_systems[sys_type].update()
-		except Exception as e:
-			cl, exc, tb = sys.exc_info()
-			line_number = traceback.extract_tb(tb)[-1][1]
-			logging.error(sys_type + ": update failed at line " + str(line_number) + ": " +str(e))
+			except Exception as e:
+				cl, exc, tb = sys.exc_info()
+				line_number = traceback.extract_tb(tb)[-1][1]
+				logging.error(sys_type + ": update failed at line " + str(line_number) + ": " +str(e))
+				continue
 
 	def cleanup(self) -> None:
 		'''	
 		Systems cleanup
 		'''
-		try:
-			for sys_type in self.m_systems.keys():
-				self.m_systems[sys_type].cleanup()
-		except Exception as e:
-			cl, exc, tb = sys.exc_info()
-			line_number = traceback.extract_tb(tb)[-1][1]
-			logging.error(sys_type + ": cleanup failed at line " + str(line_number) + ": " +str(e))
 
+		for sys_type in self.m_systems.keys():
+			try:
+				self.m_systems[sys_type].cleanup()
+			except Exception as e:
+				cl, exc, tb = sys.exc_info()
+				line_number = traceback.extract_tb(tb)[-1][1]
+				logging.error(sys_type + ": cleanup failed at line " + str(line_number) + ": " +str(e))
+				continue
 
 
 

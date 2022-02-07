@@ -11,11 +11,11 @@ class DungeonGenerator(krcko.System):
 
 	# Stelovanje
 	#average size of the rectangle which contains the room
-	avrg_rect :krcko.rectangle = krcko.rectangle(70,70,0,0)
+	avrg_rect :krcko.rectangle = krcko.rectangle(35,65,0,0)
 	#minimum size of the rectangle which contains the room
-	min_rect  :krcko.rectangle = krcko.rectangle(20,20,0,0)
+	min_rect  :krcko.rectangle = krcko.rectangle(15,25,0,0)
 	#minimum size of the rectangle that constructs a room
-	min_room_rect :krcko.rectangle = krcko.rectangle(10,10,0,0)
+	min_room_rect :krcko.rectangle = krcko.rectangle(5,10,0,0)
 	
 
 
@@ -420,9 +420,9 @@ class DungeonGenerator(krcko.System):
 	
 		dist_rect :krcko.rectangle = krcko.rectangle(abs(start.y-goal.y),abs(start.x-goal.x),0,0)
 		
-		#min: 10 % dist_rect, max 70% dist_rect
+		#min: 10 % dist_rect, max 50% dist_rect
 		min_rect :krcko.rectangle = krcko.rectangle(int((dist_rect.height/100)*10),int((dist_rect.width/100)*10),0,0)
-		max_rect :krcko.rectangle = krcko.rectangle(int((dist_rect.height/100)*70),int((dist_rect.width/100)*70),0,0)
+		max_rect :krcko.rectangle = krcko.rectangle(int((dist_rect.height/100)*50),int((dist_rect.width/100)*50),0,0)
 	
 	
 		room_rect.height = max(self.min_room_rect.height,self.random.randint(min_rect.height,max_rect.height))
@@ -556,11 +556,11 @@ class DungeonGenerator(krcko.System):
 		
 		#goal and start can't be on the same half
 				
-		start_point    :krcko.point = krcko.point(room_rect.y+int((room_rect.height/10)),\
-				room_rect.x+int(room_rect.width/10))
+		start_point    :krcko.point = krcko.point(room_rect.y+int((room_rect.height/5)),\
+				room_rect.x+int(room_rect.width/5))
 		
-		goal_point     :krcko.point = krcko.point(room_rect.bottom-int((room_rect.height/10)),\
-				room_rect.x+int(room_rect.width/1.1))
+		goal_point     :krcko.point = krcko.point(room_rect.bottom-int((room_rect.height/5)),\
+				room_rect.x+int(room_rect.width/1.2))
 		
 	
 		cur_rect :krcko.rectangle =  krcko.rectangle(0,0,start_point.x,start_point.y)

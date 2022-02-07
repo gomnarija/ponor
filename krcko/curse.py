@@ -68,10 +68,13 @@ def curse_terminate(win :curses.window) -> None:
 	curses.endwin()
 
 
+def curse_clear(win :curses.window) -> None:
+	'''clears window'''
+	win.erase()
+
+
 def curse_update(win :curses.window) -> None:
-	'''refresh window'''
 	win.refresh()
-	win.clear()
 
 
 def create_sub_window(win :curses.window, lines :int, cols :int, y :int, x :int) -> curses.window:
@@ -258,7 +261,7 @@ def do_with_color(win: curses.window,col_pair :int, func :Callable, args: List[A
 
 def get_key(win :curses.window) -> str:
 	'''Check buffer for pressed keys'''
-	key = "KEY"
+	key = "EMPTY"
 	try:
 		key = win.getkey()
 	except Exception as e:

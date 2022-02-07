@@ -53,6 +53,11 @@ class rectangle:
 		return p.y >= self.top and p.y < self.bottom\
 			and p.x >= self.left and p.x < self.right
 
+	def contains_point_full(self, p :point) -> bool:
+		return p.y >= self.top and p.y <= self.bottom\
+			and p.x >= self.left and p.x <= self.right
+
+
 
 
 
