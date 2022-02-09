@@ -90,7 +90,11 @@ class DungeonGenerator(krcko.System):
 			#floor component:
 			# ascii 
 			# floor_rects
-			floor_component = floor_component_fact(krcko.AC_BULLET, rects)
+			room_floor_ascii 	:int
+			room_floor_ascii	= self.scene.game.ascii_table.getint('DEFAULT', 'ROOM_FLOOR')
+
+	
+			floor_component = floor_component_fact(room_floor_ascii, rects)
 
 			#room component:
 			room_component = room_component_fact(room_rects[rooms.index(room)], wall_eids, [])	
@@ -141,7 +145,12 @@ class DungeonGenerator(krcko.System):
 			#floor component
 			# ascii
 			# floor tiles	
-			floor_component   = floor_component_fact(krcko.AC_CKBOARD , rects)
+
+			hallway_floor_ascii 	:int
+			hallway_floor_ascii	= self.scene.game.ascii_table.getint('DEFAULT', 'HALLWAY_FLOOR')
+
+
+			floor_component   = floor_component_fact(hallway_floor_ascii , rects)
 		
 			#hallway component
 			# rooms
@@ -259,7 +268,10 @@ class DungeonGenerator(krcko.System):
 				# ascii
 				# wall height
 				# wall width
-				wall_component = wall_component_fact(ord('#'),trimmed_wall.height,trimmed_wall.width)
+				wall_ascii 	:int
+				wall_ascii	= self.scene.game.ascii_table.getint('DEFAULT', 'WALL')
+
+				wall_component = wall_component_fact(wall_ascii,trimmed_wall.height,trimmed_wall.width)
 				
 				#position component
 				# y
@@ -617,16 +629,16 @@ class DungeonGenerator(krcko.System):
 			mid_point :int = min(room_rect_edge, int((start_point.x - goal_point.x)/2))
 
 			#start side
-			points.append(krcko.point(start_point.y,start_point.x - mid_point))
+			points.append(krcko.point(start_point.y, room_rect_edge))
 			#goal  side
-			points.append(krcko.point(goal_point.y,start_point.x - mid_point))
+			points.append(krcko.point(goal_point.y,room_rect_edge))
 		elif orientation == "vertical":
 			#half or room_rect edge
-			mid_point = min(room_rect_edge,int((start_point.y - goal_point.y)/2))
+			mid_point = min(room_rect_edge ,int((start_point.y - goal_point.y)/2))
 			#start side
-			points.append(krcko.point(start_point.y - mid_point, start_point.x))
+			points.append(krcko.point(room_rect_edge, start_point.x))
 			#goal  side
-			points.append(krcko.point(start_point.y - mid_point, goal_point.x))
+			points.append(krcko.point(room_rect_edge, goal_point.x))
 
 
 		points.append(goal_point)
@@ -705,7 +717,7 @@ class DungeonGenerator(krcko.System):
 			a_rect = a_room[cur_lowest_index]
 			#y is lowest in the room , x is somewhere random 
 			# on the lowest rectangle
-			goal_point = krcko.point(a_rect.bottom,self.random.randint(a_rect.left,a_rect.right - 1))	
+			goal_point = krcko.point(a_rect.bottom ,self.random.randint(a_rect.left,a_rect.right - 1))	
 		
 			#connect start and goal
 			return self.connect_points(start_point,goal_point,"vertical", room_rect_edge) 

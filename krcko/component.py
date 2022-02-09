@@ -66,6 +66,8 @@ def load_component(path :str) -> Any:
                 path
 
         '''
+        ret :str        
+
 
         try:
 
@@ -76,14 +78,19 @@ def load_component(path :str) -> Any:
                 # file, starting from the innermost and going up, check if decoded dict contains
                 # 'component' key.
                 with open(path,"r") as pat_file:
-                        return json.loads(pat_file.read(),\
-                        object_hook= lambda d : hook_component(d) if "component" in d  else d)
-
+                        try:
+                                ret = json.loads(pat_file.read(),\
+              		        object_hook= lambda d : hook_component(d) if "component" in d  else d)
+                        except:
+                                logging.error("json failed to load")
+                                return (None, None)
+ 
         except IOError as e:
                 logging.error("IO error : "+ str(e))
-                return None
+                return (None, None)
 
 
+        return ret
 
 def create_component(comp_name :str, fields :Dict[str,Any]) -> recordclass:
         '''

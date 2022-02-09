@@ -30,11 +30,14 @@ class Clock:
         self.max_samples = 64  # Number of fps samples to log.
         self.extra_time = 0.0  # Tracks how much the last frame was overshot.
 
+
+
     def sync(self, fps: Optional[float] = None) -> float:
         """Sync to a given framerate and return the delta time.
            params:
 		fps - if None, just measure
 	"""
+
         if fps is not None:
             # Wait until a target time based on the last time and framerate.
             desired_frame_time = 1 / fps
@@ -116,14 +119,15 @@ class Game:
 		self.clock :Clock	     = Clock() #clock object
 		self.current_scene :str	     = "" #name of the current scene
 		self.should_quit   :bool     = False #
-		self.max_fps :int  	     = 126 #
+		self.max_fps :int  	     = 60 #
 		self.m_keys 		     = [] #key buffer
 		self.turn_machine	     = TurnMachine() #turn machine object
 		self.controls		     = ConfigParser()
+		self.ascii_table	     = ConfigParser()
 
 
 		self.control_defaults()
-
+		self.ascii_defaults()
 
 
 	def control_defaults(self):
@@ -139,11 +143,32 @@ class Game:
 			}
 
 
+	def ascii_defaults(self):
+		'''set default ascii characters'''
+		
+		self.ascii_table['DEFAULT'] =\
+			{
+				'PLAYER'	:	64,
+				'WALL'		:	35,
+				'ROOM_FLOOR'	:	4194430,
+				'HALLWAY_FLOOR'	:	4194401
+			}
+
+
+	def load_ascii_table(self, path :str) -> None:
+		'''load ascii table from a file'''
+		try:
+			self.ascii_table.read(path)
+		except:
+			logging.error("failed to load ascii table")
+
 
 	def load_controls(self, path :str) -> None:
 		'''load controls from a file '''
-		self.controls.read(path)
-
+		try:
+			self.controls.read(path)
+		except:
+			logging.error("failed to load controls")
 
 
 	def add_scene(self,scene: Scene) -> None:
@@ -203,6 +228,7 @@ class Game:
 				update current scene.
 				pop keys
 				next turn.
+				purge from scene
 				update main window.
 				sync the clock.
 		'''
@@ -227,6 +253,9 @@ class Game:
 
 		#next turn action
 		self.turn_machine.next()
+
+		#remove deleted entities
+		self.scenes[self.current_scene].purge()
 
 		#update main window
 		if not self.main_window is None:

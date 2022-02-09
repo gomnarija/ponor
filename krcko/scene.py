@@ -417,7 +417,7 @@ class Scene:
 		comps : List = []
 
 		#go trough all files and dirs in path	
-		for comp_file_path in krcko.gen_files(path):
+		for comp_file_path in krcko.gen_files(path + os.sep): # add / at the end of path
 			if ".json" not in comp_file_path:#ignore non json files
 				continue
 			ret = krcko.load_component(comp_file_path)

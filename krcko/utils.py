@@ -16,7 +16,7 @@ def gen_files(dir: str) -> Iterator[str]:
 	#yield every file, gen_files every dir
         for sdir,dirs,files in os.walk(dir):
                 for file in files:
-                        yield sdir + os.sep + file
+                        yield sdir + file
                 for dir in dirs:
                         for file_path in gen_files(sdir+dir):
                                 yield file_path
