@@ -805,7 +805,7 @@ class DungeonGenerator(krcko.System):
 				#right
 				if room_rects[i].tr.y == room_rects[j].tl.y and\
 					room_rects[i].tr.x == room_rects[j].tl.x:
-					hallways.append(self.create_hallway(rooms[i],rooms[j],"right", room_rects[i].right))
+					hallways.append(self.create_hallway(rooms[i],rooms[j],"right", room_rects[i].right - 2))
 
 					self.add_to_hallway_table(i, len(hallways) - 1)
 					self.add_to_hallway_table(j, len(hallways) - 1)
@@ -813,7 +813,7 @@ class DungeonGenerator(krcko.System):
 				#bottom
 				if room_rects[i].bl.y == room_rects[j].tl.y and\
 					room_rects[i].bl.x == room_rects[j].tl.x:
-					hallways.append(self.create_hallway(rooms[i],rooms[j],"bottom", room_rects[i].bottom))
+					hallways.append(self.create_hallway(rooms[i],rooms[j],"bottom", room_rects[i].bottom - 2))
 	
 					self.add_to_hallway_table(i, len(hallways) - 1)
 					self.add_to_hallway_table(j, len(hallways) - 1)

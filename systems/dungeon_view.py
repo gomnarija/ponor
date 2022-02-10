@@ -139,6 +139,17 @@ class DungeonView(krcko.System):
 
 
 
+		#draw player on top of all other drawables
+		player_position :krcko.point = krcko.point(player_ent['position'].y, player_ent['position'].x )
+		if self.camera.contains_point(player_position):
+				#world position to camera position
+				camera_pos :krcko.point = self.world_to_camera(player_position)
+				krcko.do_with_color(self.view, player_ent['drawable'].color, krcko.draw_char, [self.view,player_ent['drawable'].ascii, camera_pos.y, camera_pos.x])
+
+
+		
+
+
 
 	def update_camera(self) -> None:
 		'''Update a camera'''
@@ -306,7 +317,7 @@ class DungeonView(krcko.System):
 		#check if it fits inside the camera
 		if self.camera.contains_point(door):
 			camera_pos :krcko.point = self.world_to_camera(door)
-			krcko.do_with_color(self.view, krcko.COLOR_YELLOW_BLACK, krcko.draw_char, [self.view, floor_component.ascii,  camera_pos.y, camera_pos.x])
+			krcko.do_with_color(self.view, krcko.COLOR_WHITE_BLACK, krcko.draw_char, [self.view, floor_component.ascii,  camera_pos.y, camera_pos.x])
 
 
 
