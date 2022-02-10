@@ -169,7 +169,7 @@ class NPCSpawner(krcko.System):
 
 		#must have default keys of the 
 		# npc template		
-		cp	=	self.ConfigParser()
+		cp	=	self.ConfigParser(allow_no_value=True)
 		cp['NPC'] =\
 		{
 			'name'			:	"NPC",		# npc class name
@@ -277,6 +277,48 @@ class NPCSpawner(krcko.System):
 		npc_ent['position'].x = new_x
 
 
+
+		
+		#add components
+		for component_name in npc.components.split(','):
+			#no components given
+			if component_name == "":
+				continue
+
+			#load
+			component, fact = krcko.load_component(defs.PAT_DIR_PATH + component_name)
+			#something's wrong
+			if component is None:
+				continue
+			#all good
+			self.scene.add_component(npc_eid, component)
+
+	
+
+		
+	
+		#optional components
+		for optional in npc.optional_components.split(','):
+			#no optional components given
+			if optional == "":
+				continue
+
+			#optiona_component_name : rarity
+			optional_split = optional.split(':')
+			if len(optional_split) != 2:		
+				logging.error("wrong optional component syntax ")
+				continue	
+			#
+			rarity :int 		= int(optional_split[1])
+			component_name :str	= optional_split[0]
+			#jackpot
+			if self.dice_roll(rarity):
+				#add component
+				component, fact = krcko.load_component(defs.PAT_DIR_PATH + component_name)
+				#something's wrong	
+				if component is None:
+					continue
+				self.scene.add_component(npc_eid, component)
 
 		return npc_eid	
 
