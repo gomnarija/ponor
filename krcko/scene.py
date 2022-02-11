@@ -186,12 +186,9 @@ class Scene:
 		 params:
 			gid
 		'''
-		if not self.has_group(gid):
-			logging.error("Scene doesn't have group with id : " + str(gid))
-			raise StopIteration
-
-		for eid in self.m_groups[gid]:
-			yield eid
+		if self.has_group(gid):
+			for eid in self.m_groups[gid]:
+				yield eid
 
 	def gen_entities(self,comp_type: str) -> Generator[Dict,None,None]:
 		'''
@@ -202,12 +199,9 @@ class Scene:
 	 
 		'''
 
-		if not comp_type in self.m_components.keys():
-			#logging.error("No components of type: " + comp_type)
-			raise StopIteration
-		
-		for eid in self.m_components[comp_type]:
-			yield self.m_entities[eid]
+		if comp_type in self.m_components.keys():
+			for eid in self.m_components[comp_type]:
+				yield self.m_entities[eid]
 
 
 	def gen_components(self,comp_type: str) -> Generator[recordclass,None,None]:
@@ -219,12 +213,9 @@ class Scene:
 	
 		'''
 
-		if not comp_type in self.m_components.keys():
-			logging.error("No components of type: " + comp_type)
-			raise StopIteration
-	
-		for ent in self.m_components[comp_type]:
-			yield self.m_entities[ent][comp_type]
+		if comp_type in self.m_components.keys():
+			for ent in self.m_components[comp_type]:
+				yield self.m_entities[ent][comp_type]
 
 
 	def get_eid_from_name(self,ent_name : str) -> int:
