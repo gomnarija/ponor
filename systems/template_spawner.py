@@ -11,10 +11,10 @@ class NPCSpawner(krcko.System):
 	# drawable objects
 	min_spawn_distance :int		=	3
 	#base rect
-	base_rect :krcko.rectangle	=	krcko.rectangle(20,20,0,0)
+	base_rect :krcko.rectangle	=	krcko.rectangle(10,10,0,0)
 	#number of spawned entities 
 	# per base_rect
-	template_rect_ratio :float	=	1.5	
+	template_rect_ratio :float	=	0.5	
 
 
 	#loaded templates
@@ -61,7 +61,7 @@ class NPCSpawner(krcko.System):
 		
 		#go trough rooms
 		room_eid	:int
-		for room_ent in self.scene.gen_entities("room"):
+		for room_ent, _ in self.scene.gen_entities("room"):
 			if "room" not in room_ent.keys():
 				logging.error("failed to get room entity : " + str(room_eid))
 				continue
@@ -252,7 +252,7 @@ class NPCSpawner(krcko.System):
 
 			too_close :bool	= False
 			#check how close it is to other drawables
-			for ent in self.scene.gen_entities("drawable"):
+			for ent, _ in self.scene.gen_entities("drawable"):
 				if "position" not in ent.keys():
 					continue
 				

@@ -116,7 +116,7 @@ class DungeonView(krcko.System):
 		player_ent = self.scene.get_entity_from_name("player")
 		room_rect :krcko.rectangle = player_ent['player'].room_rect
 
-		for ent in self.scene.gen_entities('drawable'):
+		for ent, _ in self.scene.gen_entities('drawable'):
 			#entity doesn't have position component, can't be drawn
 			if 'position' not in ent.keys():
 				continue

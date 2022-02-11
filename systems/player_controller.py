@@ -60,7 +60,7 @@ class PlayerControler(krcko.System):
 
 	
 		#go trough every entity which has floor component
-		for ent in self.scene.gen_entities("floor"):
+		for ent, _ in self.scene.gen_entities("floor"):
 			#get floor rects
 			floor_component = ent["floor"]
 			floor_rects	= floor_component.floor_tiles

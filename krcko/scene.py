@@ -190,7 +190,7 @@ class Scene:
 			for eid in self.m_groups[gid]:
 				yield eid
 
-	def gen_entities(self,comp_type: str) -> Generator[Dict,None,None]:
+	def gen_entities(self,comp_type: str) -> Generator:
 		'''
 		Generator for entities that have component type.
 	 
@@ -201,7 +201,7 @@ class Scene:
 
 		if comp_type in self.m_components.keys():
 			for eid in self.m_components[comp_type]:
-				yield self.m_entities[eid]
+				yield self.m_entities[eid], eid
 
 
 	def gen_components(self,comp_type: str) -> Generator[recordclass,None,None]:
