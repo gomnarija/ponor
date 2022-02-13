@@ -18,6 +18,9 @@ class PlayerControler(krcko.System):
 		if not self.player_ent['player'].room_rect.contains_point_full(krcko.point(self.player_position.y , self.player_position.x )):
 			self.find_room_rect()
 
+		#check for item pickup
+		self.pickup_detection()
+
 	def cleanup(self):
 		pass
 
@@ -26,6 +29,11 @@ class PlayerControler(krcko.System):
 
 	def move_detection(self):
 	
+
+		#can't move if turn machine is halted :( 
+		if self.scene.game.turn_machine.is_halted:
+			return
+		
 
 		new_y :int = self.player_position.y
 		new_x :int = self.player_position.x
@@ -117,10 +125,6 @@ class PlayerControler(krcko.System):
 		# if not, don't move
 		if not self.is_floor(krcko.point(new_y, new_x)):
 			return
-
-		#TODO:
-		#	check if there's something there :I
-
 		
 
 		self.player_position.y = new_y
@@ -128,7 +132,60 @@ class PlayerControler(krcko.System):
 
 
 
+	def pickup_detection(self) -> None:
+		'''look for pickup action '''
 
+		if type(self.scene.game.turn_machine.action).__name__ == "ITEM_PICKUP":
+			#get eid 
+			itm_eid :int = self.scene.game.turn_machine.action.item_eid
+			#pickup item
+			self.pickup_item(itm_eid)
+
+
+
+	def pickup_item(self, itm_eid :int) -> None:
+		'''item pickup:
+			remove position, drawable from item ent,
+			add item_eid to inventory
+			momo notification
+		'''
+		
+		#something's wrong
+		if not self.scene.entity_has_component(itm_eid, "item") or\
+			not self.scene.entity_has_component(itm_eid, "position") or\
+				not self.scene.entity_has_component(itm_eid, "drawable"):
+			#
+			return
+	
+		#get item entity
+		item_ent = self.scene.get_entity(itm_eid)
+	
+
+		#remove position and drawable components
+		self.scene.remove_component(itm_eid, "position")
+		self.scene.remove_component(itm_eid, "drawable")
+
+	
+		#add to inventory
+		self.player_ent['inventory'].items.append(itm_eid)
+		self.player_ent['inventory'].weight += int(item_ent['item'].weight) * int(item_ent['item'].amount)	
+
+	
+
+		not_text	:str	=	"pokupljeno"
+		cont_key	:str	=	self.scene.game.controls['MOMO']['CONTINUE']
+
+		#momo notification
+		continue_action, _ = krcko.create_action("CONTINUE", [], [], []) 
+		momo_not_action, _ = krcko.create_action("MOMO",\
+					[krcko.ActionFlag.HALTING],\
+					['text','actions','action_names','action_keys'],\
+					[not_text, [continue_action], ['jasno'], [cont_key]])
+		
+					
+		#insert
+		self.scene.game.turn_machine.insert_action(momo_not_action)
+	
 
 
 	def spawn_player(self) -> None:
