@@ -16,6 +16,7 @@ class ActionFlag(Flag):
 
 	EMPTY		= 4  #no actions in this turn
 
+	HALTING		= 5  #halt next actions, until 
 
 
 
@@ -30,16 +31,15 @@ class TurnMachine:
 
 
 	def __init__(self) -> None:
-		self.m_turn 		:List[recordclass] = []
-		self.m_next_turn 	:List[recordclass] = []
-		self.m_turn_number	:int		   = 0
 
 		#returned when there are no actions in a current turn
 		self.m_empty_action	:recordclass
-
 		self.m_empty_action, fact = create_action("empty", [ActionFlag.EMPTY], [], [])
 
-
+		self.m_turn 		:List[recordclass] 	= [self.m_empty_action]
+		self.m_next_turn 	:List[recordclass] 	= []
+		self.m_turn_number	:int		   	= 0
+		self.m_halted		:bool			= False
 	
 	@property
 	def action(self) -> recordclass:
@@ -54,6 +54,40 @@ class TurnMachine:
 		return self.m_turn_number
 
 
+
+	@property
+	def is_halted(self) -> bool:
+		return self.m_halted
+
+
+
+	def halt(self) -> None:
+		self.m_halted = True
+
+
+	def unhalt(self) -> None:
+		self.m_halted = False
+
+	def insert_action(self, action :recordclass) -> None:
+		'''add action to the beggining of the current turn'''
+
+
+
+		#if action has SINGLE flag,
+		# check if same action already exists in next turn
+		if ActionFlag.SINGLE in action.flags and\
+			any(type(action).__name__ == type(a).__name__ for a in self.m_turn):
+				#logging.warning("Action of this type with flag SINGLE already in this turn, type: " + str(action.__class__))
+				return
+
+	
+		self.m_turn.insert(0,action)
+
+
+		
+
+
+
 	def add_action(self, action :recordclass) -> None:
 		''' add action to the next turn '''
 		
@@ -61,18 +95,25 @@ class TurnMachine:
 		#if action has SINGLE flag,
 		# check if same action already exists in next turn
 		if ActionFlag.SINGLE in action.flags and\
-			any(isinstance(a, action.__class__) for a in self.m_next_turn):
-				logging.warning("Action of this type with flag SINGLE already in next turn, type: " + str(action.__class__))
+			any(type(action).__name__ == type(a).__name__ for a in self.m_next_turn):
+				#logging.warning("Action of this type with flag SINGLE already in next turn, type: " + str(action.__class__))
 				return
 
 	
-		self.m_next_turn.append(action)
+		self.m_next_turn.insert(0,action)
 
 
 
 	def next(self) -> None:
 		''' go to the next action '''
-		
+	
+
+
+		#unless it's halted
+		if self.is_halted:
+			return
+
+	
 		#go to the next action,
 		# if there are any
 		if len(self.m_turn) > 0:
@@ -84,8 +125,10 @@ class TurnMachine:
 			#
 			self.end_turn()
 			
-				
-	
+		
+		#check for halting		
+		if ActionFlag.HALTING in self.action.flags:
+			self.halt()
 
 
 		#if action has ENDING flags, end turn
