@@ -108,6 +108,8 @@ class DungeonGenerator(krcko.System):
 		self.scene.add_group(*room_eids,group_name = "rooms")
 
 
+
+
 	def gen_hallway_entities(self, hallways :List[List[krcko.rectangle]], ) -> None:
 		'''Generates hallways
 			components:

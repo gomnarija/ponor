@@ -130,7 +130,6 @@ class DungeonView(krcko.System):
 			if not room_rect.contains_point_full(krcko.point(position_component.y, position_component.x)):
 				continue
 
-
 			#if drawable object is inside camera rect
 			if self.camera.contains_point(krcko.point(position_component.y, position_component.x )):
 				#world position to camera position
@@ -179,16 +178,16 @@ class DungeonView(krcko.System):
 		main_rect.height, main_rect.width = krcko.get_window_size(main_window)
 		
 
-		#dungeon view sub-window will be placed at 20% from the top, and 15% from
-		# the left. and will span to 85% right and 97% down.
+		#dungeon view sub-window will be placed at 20% from the top, and 20% from
+		# the left. and will span to 80% right and 97% down.
 
 		view_rect   :krcko.rectangle = krcko.rectangle(0,0,0,0)
 
 		view_rect.y = main_rect.y + int((main_rect.height/100)*20)
-		view_rect.x = main_rect.x + int((main_rect.width/100)*15)
+		view_rect.x = main_rect.x + int((main_rect.width/100)*20)
 
 		view_rect.height = main_rect.height - int((main_rect.height/100)*23) #20 from top, and 3 to bottom
-		view_rect.width  = main_rect.width  - int((main_rect.width/100)*30) #15 from left, and 15 to right
+		view_rect.width  = main_rect.width  - int((main_rect.width/100)*40) #20 from left, and 20 to right
 
 
 		self.view = krcko.create_sub_window(main_window,view_rect.height, view_rect.width, view_rect.y, view_rect.x)

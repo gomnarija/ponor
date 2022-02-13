@@ -3,8 +3,8 @@ class StatsView(krcko.System):
 	
 	
 	#STELOVANJE
-	health_y_top		:int	= 5
-	name_y_top		:int	= 2
+	health_y_top		:int	= 2
+	name_y_top		:int	= 0
 	turn_number_y_bottom	:int	= 4
 	depth_y_bottom		:int	= 6
 
@@ -51,7 +51,7 @@ class StatsView(krcko.System):
 
 		player = player_ent['player']
 		
-		self.draw_middle_text("[" + player.name + "]", self.name_y_top)	
+		self.draw_middle_text("[ " + player.name + " ]", self.name_y_top)	
 
 
 
@@ -106,10 +106,10 @@ class StatsView(krcko.System):
 		
 		#stats view is on the left side of the dungeon view,
 		view_rect.y = main_rect.y + int((main_rect.height/100)*20) #20 from the top
-		view_rect.x = main_rect.x + 1
+		view_rect.x = main_rect.x
 
 		view_rect.height = main_rect.height - int((main_rect.height/100)*23) #20 from top, and 3 to bottom
-		view_rect.width  = int((main_rect.width/100)*15) #15 from the left
+		view_rect.width  = int((main_rect.width/100)*20) - 1 #20 from the left - 2
 
 		self.view_rect 	= view_rect
 		self.view 	= krcko.create_sub_window(main_window,view_rect.height, view_rect.width, view_rect.y, view_rect.x)
