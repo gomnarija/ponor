@@ -60,7 +60,6 @@ class NPCSpawner(krcko.System):
 
 		
 		#go trough rooms
-		room_eid	:int
 		for room_ent, _ in self.scene.gen_entities("room"):
 			if "room" not in room_ent.keys():
 				logging.error("failed to get room entity : " + str(room_eid))
@@ -103,6 +102,10 @@ class NPCSpawner(krcko.System):
 					if self.dice_roll(int(tmp.rarity)):
 						#spawn the entity 
 						tmp_eid = self.create_entity(room_ent, tmp)
+
+
+						ent = self.scene.get_entity(tmp_eid)
+						
 						#something's wrong
 						if tmp_eid == -1:
 							logging.error("spawning failed : " + tmp.name)
@@ -204,7 +207,7 @@ class NPCSpawner(krcko.System):
 
 
 		#create base entity
-		eid = self.scene.add_entity(tmp, ent_name = tmp.name)
+		eid = self.scene.add_entity(tmp.__copy__(), ent_name = tmp.name)
 		ent = self.scene.get_entity(eid)
 
 	
@@ -230,8 +233,9 @@ class NPCSpawner(krcko.System):
 				if component is None:
 					continue
 				self.scene.add_component(eid, component)
-
-
+			else:
+				pass
+	
 
 		#no position component given
 		if "position" not in ent.keys(): 
@@ -252,12 +256,12 @@ class NPCSpawner(krcko.System):
 
 			too_close :bool	= False
 			#check how close it is to other drawables
-			for ent, _ in self.scene.gen_entities("drawable"):
-				if "position" not in ent.keys():
+			for d_ent, _ in self.scene.gen_entities("drawable"):
+				if "position" not in d_ent.keys():
 					continue
 				
 				me	:krcko.point	= krcko.point(new_y, new_x)
-				if me.distance(krcko.point(ent['position'].y, ent['position'].x)) < self.min_spawn_distance:
+				if me.distance(krcko.point(d_ent['position'].y, d_ent['position'].x)) < self.min_spawn_distance:
 					too_close = True
 					break
 
