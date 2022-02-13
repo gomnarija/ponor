@@ -141,6 +141,12 @@ class Game:
 				'MOVE_LEFT' 	: 'KEY_LEFT',
 				'MOVE_RIGHT' 	: 'KEY_RIGHT',
 			}
+		#momo 	
+		self.controls['MOMO'] =\
+			{
+				'CONTINUE'	: 'KEY_SPACE',
+				'PICKUP'	: 'P'
+			}
 
 
 	def ascii_defaults(self):
