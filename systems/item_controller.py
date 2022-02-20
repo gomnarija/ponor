@@ -4,6 +4,11 @@ class ItemController(krcko.System):
 	import random
 
 	def setup(self):
+		
+		self.pickup_momo = krcko.Momo()
+		self.pickup_momo.load(defs.MOM_DIR_PATH + "item_pickup.momo")
+
+		
 		self.item_setup()
 
 	def update(self):
@@ -78,9 +83,24 @@ class ItemController(krcko.System):
 		#pickup the item
 		pickup_action, _ 	= krcko.create_action("ITEM_PICKUP", [krcko.ActionFlag.ENDING], ['item_eid'], [itm_eid])
 
-		
+		#get item ent
+		itm_ent		= self.scene.get_entity(itm_eid)
+				
+
+		amount  = itm_ent['item'].amount
+		name	= itm_ent['item'].name
+		#clear momo
+		self.pickup_momo.clear()
+		#momo arguments
 		#pickup form text
-		form_text :str		=	"Nekakva stvar" 
+		#plu - plurality, 1 sing, 2 mult
+		self.pickup_momo.add_arguments({'plu' : 1 if amount == 1 else 2})  
+		self.pickup_momo.run()
+
+
+
+		#pickup_momo[DETECT] + item_name [item_amount] . 
+		form_text :str		=	self.pickup_momo.pick("DETECT") + name + " [ " + str(amount) + " ]"
 		
 		#control keys
 		controls 		= self.scene.game.controls
