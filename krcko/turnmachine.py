@@ -60,6 +60,10 @@ class TurnMachine:
 		return self.m_halted
 
 
+	@property
+	def action_name(self) -> str:
+		return type(self.action).__name__
+
 
 	def halt(self) -> None:
 		self.m_halted = True
