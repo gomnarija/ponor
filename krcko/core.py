@@ -119,12 +119,14 @@ class Game:
 		self.clock :Clock	     = Clock() #clock object
 		self.current_scene :str	     = "" #name of the current scene
 		self.should_quit   :bool     = False #
-		self.max_fps :int  	     = 60 #
+		self.max_fps :int  	     = 60#
 		self.m_keys 		     = [] #key buffer
+		self.m_prev_size	     = krcko.point(0,0)
+		self.window_resized :bool    = False	
+		self.key_dps		     = 7 #how many times to check for input, in a second
 		self.turn_machine	     = TurnMachine() #turn machine object
 		self.controls		     = ConfigParser()
 		self.ascii_table	     = ConfigParser()
-
 
 		self.control_defaults()
 		self.ascii_defaults()
@@ -184,6 +186,19 @@ class Game:
 			return
 
 		self.scenes[scene.name] = scene
+		
+
+	def  change_scene(self, scene_name :str) -> None:
+		'''Change current scene'''
+		
+		if not scene_name in self.scenes.keys():
+			logging.error("Scene " + scene_name + " not loaded.")
+			return
+		else:
+			self.current_scene = scene_name
+			#self.setup()
+			
+
 
 	def quit(self) -> None:
 		'''Game should quit'''
@@ -191,10 +206,14 @@ class Game:
 
 
 	def detect_keys(self) -> None:
-		key = get_key(self.main_window)
-	
-		if key != "EMPTY":
-			self.m_keys.append(key)
+
+		#
+		if not krcko.key_pressed(self.main_window):
+			return
+		#	
+		key = krcko.get_key(self.main_window)
+		self.m_keys.append(key)
+		krcko.flush_keys(self.main_window)
 
 
 	def get_key(self) -> str:
@@ -203,6 +222,16 @@ class Game:
 			return self.m_keys[-1]
 		else:
 			return "EMPTY"
+
+	def scene_setup(self, scene_name :str) -> None:
+		'''setup given scene'''
+		if scene_name not in self.scenes.keys():
+			logging.debug("Scene " + scene_name + " not loaded")
+			return
+
+		self.scenes[scene_name].add_game(self)
+		self.scenes[scene_name].setup()
+			
 
 
 	def setup(self) -> None:
@@ -216,20 +245,18 @@ class Game:
 				return
 			else:
 				self.current_scene = list(self.scenes.keys())[0]
-
-		#assign self to scene's game, and call it's setup	
-		self.scenes[self.current_scene].add_game(self)
-		self.scenes[self.current_scene].setup()
+		#
+		self.scene_setup(self.current_scene)
 		
 		#init main window
 		if self.main_window is None:
 			self.main_window = curse_init()
 
-
+	key_detection_timer = 0
 	def update(self) -> None:
 		'''
 			Game update:
-				clear main window
+				check for window resize
 				detect_keys
 				update current scene.
 				pop keys
@@ -238,14 +265,28 @@ class Game:
 				update main window.
 				sync the clock.
 		'''
-			
-		#clear main window
-		if not self.main_window is None:
-			curse_clear(self.main_window)
+		#check if window has been resized
+		curr_size	= krcko.point(0,0)
+		curr_size.y, curr_size.x = krcko.get_window_size(self.main_window)
 	
+		if curr_size.y != self.m_prev_size.y or\
+			curr_size.x != self.m_prev_size.x:
+			#clear main window
+			krcko.curse_clear(self.main_window)
+			#
+			self.window_resized = True
+			#
+			self.m_prev_size.y = curr_size.y
+			self.m_prev_size.x = curr_size.x
+
+		else:
+			self.window_resized = False	
 		
-		#input handling
-		self.detect_keys()
+		self.key_detection_timer += 1
+		#input handling, key_dps per second
+		if self.key_detection_timer * self.key_dps >= self.clock.median_fps:
+			self.detect_keys()
+			self.key_detection_timer = 0	
 
 		#update current scene
 		if self.current_scene == "":
@@ -256,6 +297,7 @@ class Game:
 
 		if len(self.m_keys) > 0:
 			self.m_keys.pop()
+
 
 		#next turn action
 		self.turn_machine.next()
