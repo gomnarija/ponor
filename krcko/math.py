@@ -10,8 +10,13 @@ class point:
 		self.y = y
 		self.x = x
 
-	def distance(self, p :'point') -> int:
-		return 	int(math.sqrt(math.pow(p.x-self.x,2)+math.pow(p.y-self.y,2)))
+	def distance(self, p :'point') -> float:
+		return 	math.sqrt(math.pow(p.x-self.x,2)+math.pow(p.y-self.y,2))
+
+	def copy(self, p :'point') -> None:
+		self.y	= p.y
+		self.x  = p.x
+
 
 class rectangle:
 	def __init__(self,height :int, width :int, y :int ,x :int):
@@ -76,4 +81,14 @@ class rectangle:
 		they_overlap :bool = True if overlap_rect.height > 0 and overlap_rect.width > 0 else False
 
 		return (they_overlap, overlap_rect)
+
+
+
+	def copy(self, rect :'rectangle') -> None:
+		self.y		=	rect.y
+		self.x		=	rect.x
+		self.height	=	rect.height
+		self.width	=	rect.width
+
+
 
