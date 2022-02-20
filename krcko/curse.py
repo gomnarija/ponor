@@ -19,6 +19,8 @@ AC_CKBOARD = curses.ACS_CKBOARD
 
 
 #color stuff :) 
+# color isn't used at the moment
+#  maybe remove this :/ 
 curses.start_color()
 
 
@@ -139,6 +141,7 @@ def draw_char(win :curses.window,ch: Union[str,bytes,int], y :int=-1,x :int=-1) 
 		win.addch(y,x,ch)
 	except Exception as e:
 		logging.error(e)
+		logging.debug(y)
 		pass
 
 
@@ -261,7 +264,7 @@ def do_with_color(win: curses.window,col_pair :int, func :Callable, args: List[A
 
 def get_key(win :curses.window) -> str:
 	'''Check buffer for pressed keys'''
-	key = "EMPTY"
+	key :str = "EMPTY"
 	try:
 		key = win.getkey()
 	except Exception as e:
@@ -269,4 +272,50 @@ def get_key(win :curses.window) -> str:
 		pass
 	return key
 	
+def key_pressed(win :curses.window) -> bool:
+	'''Check if key is pressed'''
+	key :int = 0
+	try:
+		key = win.getch()
+		#-1 = no input
+		if not key == -1:	
+			curses.ungetch(key)
+			return True
+
+	except Exception as e:
+		return False
+		pass
+	return False
+
+
+def flush_keys(win :curses.window) -> None:
+	'''discard input'''	
+	curses.flushinp()
+
+
+
+def get_screen_text(win :curses.window) -> List[str]:
+	'''returns currently displayed text as List[Tuple(position, ascii)]'''
+	
+
+	#result	
+	lines				=	[]
+	line_height, line_width 	=	get_window_size(win)
+
+
+	try:
+	
+		for y in range(0, line_height - 1):
+			for x in range(0, line_width - 1):
+				lines.append(((y,x), win.inch(y, x)))
+
+		return lines
 		
+	except Exception as e:
+		logging.error(str(e))
+		return []
+
+
+
+
+
