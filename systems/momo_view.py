@@ -12,20 +12,19 @@ class MomoView(krcko.System):
 	text_buffer		=	""
 
 	def setup(self):
-		
-		
-		continue_action, _ = krcko.create_action("CONTINUE", [], [], [])
-		momo_not_action, _ = krcko.create_action("MOMO",\
-					 [krcko.ActionFlag.HALTING],\
-					 ['text', 'actions', 'action_names', 'action_keys'],\
-					 ["including versions of Lorem Ipsum.", [continue_action],['jasno'],['J'] ])		
-
-
-
-		self.scene.game.turn_machine.insert_action(momo_not_action)
+		pass	
 	
+
+	_started :bool = False#wait for start action	
 	def update(self):
-	
+		
+		if not self._started:
+			if self.scene.game.turn_machine.action_name == "START":
+				self._started = True
+			else:
+				return		
+
+
 		self.update_view()
 
 		#draw view borders
@@ -36,7 +35,7 @@ class MomoView(krcko.System):
 		
 
 		#check for momo action
-		if type(self.scene.game.turn_machine.action).__name__ == "MOMO":
+		if self.scene.game.turn_machine.action_name == "MOMO":
 			#get action
 			action = self.scene.game.turn_machine.action
 			#draw text and options
@@ -159,7 +158,8 @@ class MomoView(krcko.System):
 		''' Update a view''' 
 	
 		main_window = self.scene.game.main_window
-
+		
+		
 		
 		main_rect	:krcko.rectangle = krcko.rectangle(0,0,0,0)
 		view_rect	:krcko.rectangle = krcko.rectangle(0,0,0,0)
@@ -176,8 +176,8 @@ class MomoView(krcko.System):
 		self.view_rect 	= view_rect
 		self.view 	= krcko.create_sub_window(main_window,view_rect.height, view_rect.width, view_rect.y, view_rect.x)
 
-
-
+		#clear view
+		krcko.curse_clear(self.view)
 
 
 sys_instance = MomoView()	

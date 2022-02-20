@@ -10,9 +10,18 @@ class StatsView(krcko.System):
 
 	def setup(self):
 		pass
-	
+
+
+	_started :bool	= False#wait for start action	
 	def update(self):
 	
+		if not self._started:
+			if self.scene.game.turn_machine.action_name == "START":
+				self._started = True
+			else:
+				return
+			
+
 		self.update_view()
 
 		#draw view borders
@@ -106,15 +115,15 @@ class StatsView(krcko.System):
 		
 		#stats view is on the left side of the dungeon view,
 		view_rect.y = main_rect.y + int((main_rect.height/100)*20) #20 from the top
-		view_rect.x = main_rect.x
+		view_rect.x = main_rect.x + 1
 
 		view_rect.height = main_rect.height - int((main_rect.height/100)*23) #20 from top, and 3 to bottom
-		view_rect.width  = int((main_rect.width/100)*20) - 1 #20 from the left - 2
+		view_rect.width  = int((main_rect.width/100)*20) - 2 #20 from the left - 2
 
 		self.view_rect 	= view_rect
 		self.view 	= krcko.create_sub_window(main_window,view_rect.height, view_rect.width, view_rect.y, view_rect.x)
-
-
+		#clear view
+		krcko.curse_clear(self.view)
 
 
 

@@ -9,9 +9,18 @@ class PlayerControler(krcko.System):
 		self.player_position = self.player_ent['position']
 		self.spawn_player()
 
+
+
+	_started :bool	=	False#wait for start action
 	def update(self):
-		self.move_detection() #detects input, sends action 
+		if not self._started:
+			if self.scene.game.turn_machine.action_name == "START":
+				self._started = True
+			else:
+				return
+
 		self.do_move() #detects action, moves player
+		self.move_detection() #detects input, sends action 
 
 		#if player goes outside current room_rect,
 		# find another one
@@ -34,6 +43,16 @@ class PlayerControler(krcko.System):
 		if self.scene.game.turn_machine.is_halted:
 			return
 		
+
+
+		#only on ending move, or if current move is empty
+		if not krcko.ActionFlag.ENDING in\
+			self.scene.game.turn_machine.action.flags and\
+		   not krcko.ActionFlag.EMPTY in\
+			self.scene.game.turn_machine.action.flags:
+			#
+			return
+
 
 		new_y :int = self.player_position.y
 		new_x :int = self.player_position.x
@@ -92,7 +111,7 @@ class PlayerControler(krcko.System):
 			#check if room rect contains player
 			position :krcko.point = krcko.point(self.player_position.y, self.player_position.x)
 			#it does, assign it
-			if room_ent['room'].room_rect.contains_point(position):
+			if room_ent['room'].room_rect.contains_point_full(position):
 				self.player_ent['player'].room_rect = room_ent['room'].room_rect
 				#assign current room
 				self.player_ent['player'].current_room = room_eid	
@@ -108,7 +127,7 @@ class PlayerControler(krcko.System):
 		game = self.scene.game
 
 		#check current action
-		if type(game.turn_machine.action).__name__ != "MOVE_PLAYER":
+		if game.turn_machine.action_name != "MOVE_PLAYER":
 			return
 		
 		#get the action
@@ -135,7 +154,7 @@ class PlayerControler(krcko.System):
 	def pickup_detection(self) -> None:
 		'''look for pickup action '''
 
-		if type(self.scene.game.turn_machine.action).__name__ == "ITEM_PICKUP":
+		if self.scene.game.turn_machine.action_name == "ITEM_PICKUP":
 			#get eid 
 			itm_eid :int = self.scene.game.turn_machine.action.item_eid
 			#pickup item

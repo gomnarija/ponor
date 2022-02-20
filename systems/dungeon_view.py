@@ -2,47 +2,118 @@ class DungeonView(krcko.System):
 	'''Draws dungeon stuff'''
 
 	
-	camera			 :krcko.rectangle = krcko.rectangle(10,10,10,10)
+	camera			 :krcko.rectangle = krcko.rectangle(10,10,0,0)
+	camera_speed		 :int		  = 100 #per second
 
 
 	def setup(self):
-		pass
 		
-	def update(self):
+		win_height, _ = krcko.get_window_size(self.scene.game.main_window)
+
+		#place camera above player
+		self.player_ent	=	self.scene.get_entity_from_name("player")
+		self.camera.x	=	self.player_ent['player'].room_rect.x
+		#bound it to starting particles starting y
+		self.camera.y	=	max(-100,self.player_ent['position'].y - (3 * win_height))
+
+		self.start_camera_y	=	self.camera.y #used for counting scroll back
+
+
 	
+	cs :int					  =	0#frame counter
+	player_found :bool			  =	False#initial camera over player
+	camera_over_player :bool		  = 	False
+	leftovers				  =	None#particles on screen from previous scene
+								# used for smoother transitions
+	def update(self):
+
+
+		#get leftover particles
+		if self.leftovers == None:
+			self.leftovers :List[(int, int),int]	=	krcko.get_screen_text(self.scene.game.main_window)
+
+
 		#create curses subwindow that represents
 		# a dungeon view
+		# back view, only while camera is looking for player
 		self.update_view()
+		if not self.player_found:
+			self.update_back_view()
+			krcko.curse_clear(self.back_view)
+			#draw particles in it
+			self.draw_back()
 
 
+		#get median fps
+		m_fps	=	max(10, self.scene.game.clock.median_fps)
 		# a camera is used to limit which world objects get to be 
 		#  drawn at a current frame. Objects outside the camera rectangle
 		#   won't be drawn.
-		self.follow_player_with_camera()	
+		if self.cs * self.camera_speed >= m_fps or self.player_found:
+			self.follow_player_with_camera()
+			self.cs	= 0
+		else:
+			self.cs	+= 1
+	
 		self.update_camera()	
 	
 
-		#draw view borders
-		krcko.draw_window_border(self.view, tl = krcko.AC_DIAMOND,\
+		#draw only at the end of the turn,
+		#	or if window gets resized
+		#		or if camera is not over player
+		if krcko.ActionFlag.ENDING in self.scene.game.turn_machine.action.flags or\
+			self.scene.game.window_resized or\
+				not self.camera_over_player:
+		
+			#clear view
+			krcko.curse_clear(self.view)
+		
+			#only after player has been found
+			if self.player_found:
+				#draw view borders
+				krcko.draw_window_border(self.view, tl = krcko.AC_DIAMOND,\
 							tr = krcko.AC_DIAMOND,\
 								bl  = krcko.AC_DIAMOND,\
 									br = krcko.AC_DIAMOND)
 
 
 
+				#view title
+				self.display_game_title("[ ponor ]")
 
 
-		self.display_game_title("[ ponor ]")
+			#draw particles
+			self.draw_particles()
 
-
-		#draw current room where player is
-		self.draw_current_room()
+			#draw current room where player is
+			self.draw_current_room()
 		
-		#draw drawable objects
-		self.draw_drawables()
+			#draw drawable objects
+			self.draw_drawables()
+
+
+
+		#draw leftover from previous scene
+		if not self.leftovers_done:
+			self.draw_leftovers(self.camera.y - self.start_camera_y)
+
+
 	
 	def cleanup(self):
 		pass
+
+
+	def draw_particles(self) -> None:
+		'''draw particles'''
+
+		for ent, eid in self.scene.gen_entities("particles"):
+			for position in ent['particles'].positions:
+				#if particle object is inside camera rect
+				if self.camera.contains_point(position):
+					#world position to camera position
+					camera_pos :krcko.point = self.world_to_camera(position)
+					#draw
+					krcko.draw_char(self.view, ent['particles'].ascii, camera_pos.y, camera_pos.x)
 
 
 	def display_game_title(self, title :str) -> None:
@@ -73,7 +144,7 @@ class DungeonView(krcko.System):
 			follow him
 		'''
 		
-		player_ent = self.scene.get_entity_from_name("player")
+		player_ent = self.player_ent
 
 		#somethings wrong
 		if 'player' not in player_ent.keys():
@@ -91,7 +162,16 @@ class DungeonView(krcko.System):
 				self.camera.width  - int(self.camera.width/2.5),\
 				self.camera.y + int(self.camera.height/5),\
 				self.camera.x + int(self.camera.width/5))
-		
+	
+		if not self.player_found:
+			self.player_found 	=	center_rect.contains_point_full(player_position)
+			#done, send start action	
+			if self.player_found:
+				self.start_action()
+
+		#
+		self.camera_over_player 	=	center_rect.contains_point(player_position)
+	
 		#too high
 		if center_rect.bottom < player_position.y:
 			self.camera.y += 1
@@ -113,7 +193,7 @@ class DungeonView(krcko.System):
 		'''Draw entities with drawable component, that are inside current room_rect'''
 	
 
-		player_ent = self.scene.get_entity_from_name("player")
+		player_ent = self.player_ent
 		room_rect :krcko.rectangle = player_ent['player'].room_rect
 
 		for ent, _ in self.scene.gen_entities('drawable'):
@@ -176,12 +256,12 @@ class DungeonView(krcko.System):
 		main_rect   :krcko.rectangle = krcko.rectangle(0,0,0,0)
 
 		main_rect.height, main_rect.width = krcko.get_window_size(main_window)
+	
 		
-
-		#dungeon view sub-window will be placed at 20% from the top, and 20% from
+		view_rect   :krcko.rectangle = krcko.rectangle(0,0,0,0)
+		#when player is found dungeon view sub-window will be placed at 20% from the top, and 20% from
 		# the left. and will span to 80% right and 97% down.
 
-		view_rect   :krcko.rectangle = krcko.rectangle(0,0,0,0)
 
 		view_rect.y = main_rect.y + int((main_rect.height/100)*20)
 		view_rect.x = main_rect.x + int((main_rect.width/100)*20)
@@ -192,11 +272,11 @@ class DungeonView(krcko.System):
 
 		self.view = krcko.create_sub_window(main_window,view_rect.height, view_rect.width, view_rect.y, view_rect.x)
 
-	
+		
 	def draw_current_room(self) -> None:
 		'''Draw current room where player is '''
 	
-		player_ent = self.scene.get_entity_from_name("player")
+		player_ent = self.player_ent
 
 		player_component = player_ent['player']
 
@@ -297,7 +377,7 @@ class DungeonView(krcko.System):
 		'''Draw hallway door'''
 	
 
-		player_ent  = self.scene.get_entity_from_name("player")
+		player_ent  = self.player_ent
 		room_rect :krcko.rectangle = player_ent['player'].room_rect
 
 		floor_rects = floor_component.floor_tiles
@@ -320,15 +400,11 @@ class DungeonView(krcko.System):
 
 
 
-		
-
-
-
 
 	def draw_hallway(self,hallway_eid :int) -> None:
 		'''Draw a hallway,
 			if player is inside it currently, draw it whole, 
-			else, draw only door
+			else, draw the doors only
 		'''
 		
 		
@@ -336,7 +412,7 @@ class DungeonView(krcko.System):
 		#	floor_tiles : list of rectangles 
 		#
 		hallway_ent = self.scene.get_entity(hallway_eid)
-		player_ent  = self.scene.get_entity_from_name("player")
+		player_ent  = self.player_ent
 
 		if 'hallway' not in hallway_ent.keys():
 			logging.error("failed to get hallway entity")
@@ -382,10 +458,98 @@ class DungeonView(krcko.System):
 				krcko.draw_rectangle(self.view, floor_component.ascii, fit_rect)	
 
 
+	leftover_view	=	None
+	leftovers_done	=	False
+	def draw_leftovers(self, scroll_back :int) -> None:
+		'''draw leftover particles from previous scene
+			for smoother transitions :)
+
+		  needs back_view
+		'''
+		
+		#create view if not already
+		if self.leftover_view == None:
+			self.leftover_view	=	krcko.create_sub_window(self.scene.game.main_window,self.back_view_rect.height, self.back_view_rect.width, self.back_view_rect.y, self.back_view_rect.x)
+
+		#
+		bottom :int	=	self.back_view_rect.bottom - scroll_back
+		
+		#done, terminate view
+		if bottom <= 0 or self.player_found:
+			self.leftovers_done = True
+			#clear window
+			krcko.curse_clear(self.leftover_view)
+			return	
+			
+		#
+		for position, ascii in self.leftovers:
+			# get coords
+			y, x = position
+			#scroll down
+			y    -= scroll_back
+			#
+			if y >= 0 and y < bottom and\
+				x >= 0 and x < self.back_view_rect.right:
+				#
+				krcko.draw_char(self.leftover_view, ascii, y, x)
+				pass
+
+		
 
 
 
+	def draw_back(self) -> None:
+		'''draw particles in the back while camera is 
+			looking for the player
+		'''
+	
+		#back_view rect,  camera.y camera.x
+		back_rect	=	krcko.rectangle(0,0,0,0)
+		back_rect.copy(self.back_view_rect)
+		back_rect.y	=	self.camera.y
+		back_rect.x	=	self.camera.x
 
+
+		#	
+		for ent, eid in self.scene.gen_entities("particles"):
+			for position in ent['particles'].positions:
+				#if particle object is inside back_rect
+				if position.y > back_rect.y and position.y < back_rect.bottom - 1 and\
+					position.x > back_rect.x and position.x < back_rect.right - 1: 
+					#draw at a position relative to camera
+					krcko.draw_char(self.back_view, ent['particles'].ascii,position.y - self.camera.y, position.x - self.camera.x)
+					pass
+	
+		
+
+
+
+	def update_back_view(self) -> None:
+		'''back view used to display particles 
+			in the back until player is found
+		''' 
+
+		main_window = self.scene.game.main_window
+		main_rect   :krcko.rectangle = krcko.rectangle(0,0,0,0)
+
+		main_rect.height, main_rect.width = krcko.get_window_size(main_window)
+	
+		
+		back_view_rect   :krcko.rectangle = krcko.rectangle(0,0,0,0)
+		#whole main window
+		back_view_rect.copy(main_rect)
+
+		self.back_view_rect = back_view_rect
+		self.back_view = krcko.create_sub_window(main_window,back_view_rect.height, back_view_rect.width, back_view_rect.y, back_view_rect.x)
+
+
+		
+
+	def start_action(self) -> None:
+		'''view is done loading, send start action '''
+	
+		start_action, _ = krcko.create_action("START",[krcko.ActionFlag.ENDING], [], [])
+		self.scene.game.turn_machine.add_action(start_action)
 	
 				
 sys_instance = DungeonView()
