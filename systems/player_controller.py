@@ -243,7 +243,7 @@ class PlayerControler(krcko.System):
 
 
 		#set ascii
-		self.player_ent['drawable'].ascii = self.scene.game.ascii_table.getint('DEFAULT','PLAYER')
+		self.player_ent['drawable'].ascii = self.scene.game.get_ascii('PLAYER')
 
 
 

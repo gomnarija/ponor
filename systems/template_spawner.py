@@ -322,9 +322,15 @@ class TemplateSpawner(krcko.System):
 		eid = self.scene.add_entity(*components, ent_name = tmp_name)
 		ent = self.scene.get_entity(eid)
 
-		#no position component given
-		if "position" not in ent.keys(): 
+		#no position or drawable component given,
+		#	skip
+		if "position" not in ent.keys() or\
+			"drawable" not in ent.keys(): 
 			return eid
+
+
+		#get ascii from table
+		ent['drawable'].ascii = self.scene.game.get_ascii(ent['drawable'].ascii_id)
 
 
 		#Can't be too close to other drawables
@@ -363,7 +369,7 @@ class TemplateSpawner(krcko.System):
 			
 
 		#good to go
-		# assign position values
+		#	assign position values
 		ent['position'].y = new_y
 		ent['position'].x = new_x
 

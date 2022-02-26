@@ -154,12 +154,14 @@ class Game:
 	def ascii_defaults(self):
 		'''set default ascii characters'''
 		
-		self.ascii_table['DEFAULT'] =\
+		self.ascii_table['ASCII'] =\
 			{
 				'PLAYER'	:	64,
 				'WALL'		:	35,
 				'ROOM_FLOOR'	:	4194430,
-				'HALLWAY_FLOOR'	:	4194401
+				'HALLWAY_FLOOR'	:	4194401,
+				'RAVEN'		:	71,
+				'MONEY'		:	42
 			}
 
 
@@ -177,6 +179,16 @@ class Game:
 			self.controls.read(path)
 		except:
 			logging.error("failed to load controls")
+
+
+	def get_ascii(self, key :str) -> int:
+		'''ascii table lookup'''
+
+		if key not in self.ascii_table['ASCII']:
+			logging.warning("key " + key + " found in ascii table.")
+			return ord('X')
+
+		return int(self.ascii_table['ASCII'][key])
 
 
 	def add_scene(self,scene: Scene) -> None:

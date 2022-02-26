@@ -27,14 +27,9 @@ class ItemController(krcko.System):
 		for itm_ent, _ in self.scene.gen_entities("item"):
 			if "item" not in itm_ent.keys():
 				continue
-		
-			# if item is drawable, asign it's ascii
-			if "drawable" in itm_ent.keys():
-				itm_ent['drawable'].ascii = int(itm_ent['item'].ascii)
-
-			# item amount
-			itm_ent['item'].amount = self.random.randint(int(itm_ent['item'].min_amount), int(itm_ent['item'].max_amount))
-
+			
+			pass
+			#TODO
 
 
 

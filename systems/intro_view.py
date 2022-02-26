@@ -17,8 +17,8 @@ class IntroView(krcko.System):
 		#generate particles
 		density		=	3
 		self.particles :List[Tuple[str, krcko.point]]	=	[]
-		for index in range(0, int(((500 * 200) / 100) * density)):
-			position = krcko.point(self.random.randint(0, 500), self.random.randint(0,200))
+		for index in range(0, int(((500 * 500) / 100) * density)):
+			position = krcko.point(self.random.randint(0, 500), self.random.randint(0,500))
 			self.particles.append( (self.random.choice(self.fragments), position))
 		
 

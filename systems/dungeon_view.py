@@ -40,12 +40,13 @@ class DungeonView(krcko.System):
 		if not self.player_found:
 			self.update_back_view()
 			krcko.curse_clear(self.back_view)
-			#draw particles in it
-			self.draw_back()
 
 
 		#get median fps
 		m_fps	=	max(10, self.scene.game.clock.median_fps)
+
+	
+		self.update_camera()	
 		# a camera is used to limit which world objects get to be 
 		#  drawn at a current frame. Objects outside the camera rectangle
 		#   won't be drawn.
@@ -54,9 +55,14 @@ class DungeonView(krcko.System):
 			self.cs	= 0
 		else:
 			self.cs	+= 1
-	
-		self.update_camera()	
-	
+
+
+
+
+
+		#draw back if player still missing
+		if not self.player_found:
+			self.draw_back()
 
 		#draw only at the end of the turn,
 		#	or if window gets resized
@@ -92,7 +98,7 @@ class DungeonView(krcko.System):
 			self.draw_drawables()
 
 
-
+	
 		#draw leftover from previous scene
 		if not self.leftovers_done:
 			self.draw_leftovers(self.camera.y - self.start_camera_y)
@@ -523,7 +529,7 @@ class DungeonView(krcko.System):
 		
 
 
-
+	back_view	=	None
 	def update_back_view(self) -> None:
 		'''back view used to display particles 
 			in the back until player is found

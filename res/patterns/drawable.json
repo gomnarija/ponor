@@ -2,7 +2,8 @@
 	"drawable", 
 	"fields": 
 	{
-		"ascii": 0,
-		"color": 7 
+		"ascii_id" 	: "ASCII",
+		"ascii"		: 26,
+		"color" 	: 7 
 	}
 }
