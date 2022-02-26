@@ -1,9 +1,10 @@
-class NPCSpawner(krcko.System):
+class TemplateSpawner(krcko.System):
 	'''Spawn entities from templates somewhere in rooms'''
 
 
 	from configparser import ConfigParser
 	import random
+	import re
 
 	#STELOVANJE
 	
@@ -30,7 +31,7 @@ class NPCSpawner(krcko.System):
 		
 		#load item templates
 		self.load_templates(defs.ITM_DIR_PATH)
-	
+
 		#get avaliable ones
 		self.filter_templates()	
 
@@ -97,13 +98,11 @@ class NPCSpawner(krcko.System):
 					if number_of_templates < 0:
 						break
 
-					tmp = self.avaliable_templates[template_name]
+					tml_component 	= [comp for comp in self.templates[template_name] if type(comp).__name__ == "template"][0]
 					#jackpot
-					if self.dice_roll(int(tmp.rarity)):
+					if self.dice_roll(int(tml_component.rarity)):
 						#spawn the entity 
-						tmp_eid = self.create_entity(room_ent, tmp)
-
-
+						tmp_eid = self.create_entity(room_ent, self.templates[template_name], template_name)
 						ent = self.scene.get_entity(tmp_eid)
 						
 						#something's wrong
@@ -125,117 +124,203 @@ class NPCSpawner(krcko.System):
 
 	def filter_templates(self) -> None:
 		''' Goes trough self.templates and checks which ones are
-			avaliable
+			avaliable at a current depth
 		'''
 
 		self.avaliable_templates = {}
 
 		#go trough templates
-		for template in self.templates.keys():
+		for template_name in self.templates.keys():
 			#check depth availability
-			tmp 		= self.templates[template]
+			tml_component 	= [comp for comp in self.templates[template_name] if type(comp).__name__ == "template"][0]
 			curr_depth :int = self.player_ent['player'].depth
 			# needs to be deeper
-			if int(tmp.min_depth) > curr_depth:
+			if int(tml_component.min_depth) > curr_depth:
 				continue
 
-			# too deep, if 0
-			if int(tmp.max_depth) != 0 and\
-				int(tmp.max_depth) < curr_depth:
+			# too deep, if 0 it's good  for all depths
+			if int(tml_component.max_depth) != 0 and\
+				int(tml_component.max_depth) < curr_depth:
 				continue
 
 			#good to go :)
-			self.avaliable_templates[tmp.name] = tmp
+			self.avaliable_templates[template_name] = self.templates[template_name]
 	
 
 	def load_templates(self, templates_dir :str) -> None:
-		''' Loads all templates from templates dir '''
+		''' Loads all templates from templates dir'''
 		
 		#go trough every file in template dir
 		for file_path in krcko.gen_files(templates_dir):
 			#load template from file
-			tmp, fact = self.load_template(file_path)
-			#default value, something's wrong
-			if tmp.name == "TEMPLATE":
-				logging.error("failed to load template")
+			tml_components = self.load_template(file_path)
+			if tml_components == []:
 				continue
 
+
+			#templates must have template component
+			tmls = [comp for comp in tml_components if type(comp).__name__ == "template"]
+			if len(tmls) == 0:
+				logging.error("templates must have template component: " + file_path)
+				continue
+
+			tml_component = tmls[0]
+			tml_name :str = tml_component.name 
+
 			#template with that name already loaded, continue
-			if tmp.name in self.templates.keys():
+			if tml_name in self.templates.keys():
 				continue
 	
 			#add loaded template to templates
-			self.templates[tmp.name] = tmp
+			self.templates[tml_name] = tml_components
 
 
 
+	def parse_component(self, comp_str :str):
+		'''returns tuple(component, should_stop) '''
+
+		#[~component_name : chance]
+		#if chance is not given, chance is 100
+		#if ~ is given and dice roll fails stop template loading
+
+		#must be inside []
+		if comp_str[0] != "[" or comp_str[-1] != "]":
+			logging.error("Wrong component syntax, did you forget [] ?")
+			return (False, None)
+
+		#strip []
+		comp_str = comp_str[1:-1]
+		#should halt if dice roll fails
+		halting = "~" in comp_str
+		comp_str = comp_str.replace("~", "")
+		
+		#chance, 100 if not given 
+		chance :int = 100
+		if ":" in comp_str:
+			chance = int(comp_str.split(":")[1])
+		#
+		comp_name	=	comp_str.split(":")[0]
+			
+
+		#roll them
+		if self.dice_roll(chance):
+			component, _ = krcko.load_component(defs.PAT_DIR_PATH + comp_name)
+			return (False, component)
+		else:
+			return (halting, None)
+			
+
+
+
+	_magic :str	=	'[ \t]*(\[[\w:\d \t._~:]*\]|[a-zA-Z0-9 \t=_^\"]*)'
+	
 	def load_template(self, path :str): 
-		'''Load template into a recordclass
-			!!!all values are of type str!!!'''
-
-		#default
-		cp	=	self.ConfigParser(allow_no_value=True)
-		cp['TEMPLATE'] =\
-		{
-			'name'			:	"TEMPLATE",	# 
-			'type'			:	"TEMPLATE",	#
-			'ascii'			:	"65",		# ascii code
-			'min_depth'		:	"1",		# minimum depth for this to spawn
-			'max_depth'		:	"0",		# maximum depth for this to spawn
-			'components'		:	"",		# pattern_file_name : chance to have, separated with ','
-			'rarity'		:	"70"		# chance to spawn
-		}
-		#read template file
+		'''Load template components from template file, and assign their
+			values.
+		'''
+		
+		
+		#components for the new entity
+		components = []
+		#current loaded component
+		curr_component = None
 		try:
-			cp.read(path)
-		except:
-			logging.error("failed to load template from : " + path)
+			with open(path, "r") as tml_file:
+				tokens :List[str] = self.re.findall(self._magic, tml_file.read())
+				for token in tokens:
+					#white space,tabs
+					token = token.replace(" ", "")	
+					token = token.replace("\t", "")	
+					if token == "":
+						continue
+					#component 
+					if token[0] == "[":
+						#
+						if curr_component is not None:
+							components.append(curr_component)
+							curr_component = None						
+
+						stop, component = self.parse_component(token)
+						#halting component failed, stop further loading
+						if stop:
+							break
+						#component failed, continue
+						if component is None:
+							continue
+						#all good
+						curr_component = component
+					
+					#value
+					else:
+						#no components currently loaded, continue
+						if curr_component is None:
+							continue
+						
+						#value_name = value
+						if len(token.split("=")) != 2:
+							logging.error("Wrong value syntax")
+							continue
+						#
+						val_name :str = token.split("=")[0]
+						value = token.split("=")[1]
+			
+						#convert to int if not inside ""
+						#TODO: floating 
+						if value[0] != '"':
+							#min_val^max_val
+							if "^" in value:
+								min_v = value.split("^")[0]
+								max_v = value.split("^")[1]
+								value = (min_v, max_v) #calculate later 
+							else:
+								value = int(value)
+						else:
+							#strip ""
+							value = value[1:-1]
+					
+						#	
+						if val_name not in curr_component._asdict().keys():	
+							logging.error(val_name + " not found in " + type(curr_component).__name__)
+							continue
+
+						#
+						setattr(curr_component, val_name, value)
+
+
+						
+		
+		except Exception as e:
+			logging.error("failed to load template from : " + path + " " + str(e))
 			return None
 
-		
-		tmp	=	recordclass(cp['TEMPLATE']['type'], cp['TEMPLATE'].keys())
+	
+		#leftovers
+		if curr_component is not None:
+			components.append(curr_component)
+		#	
+		return	components 
 		
 
-		return (tmp(*cp['TEMPLATE'].values()), tmp)
-		
 
-
-	def create_entity(self, room_ent, tmp) -> int:
+	def create_entity(self, room_ent, tmp, tmp_name :str) -> int:
 		'''Creates template entity in a room'''
 
 
 
-
+		#copy
+		components = []
+		for t in tmp:
+			components.append(t.__copy__())
+			#random values, tuple with min, max
+			for index in range(0, len(components[-1])):
+				_field = components[-1][index]
+				if type(_field) is tuple:
+					_min, _max = _field
+					components[-1][index] = self.random.randint(int(_min), int(_max))
+		
 		#create base entity
-		eid = self.scene.add_entity(tmp.__copy__(), ent_name = tmp.name)
+		eid = self.scene.add_entity(*components, ent_name = tmp_name)
 		ent = self.scene.get_entity(eid)
-
-	
-		#load components
-		for optional in tmp.components.split(','):
-			#no optional components given
-			if optional == "":
-				continue
-
-			#optiona_component_name : rarity
-			optional_split = optional.split(':')
-			if len(optional_split) != 2:		
-				logging.error("wrong optional component syntax ")
-				continue	
-			#
-			rarity :int 		= int(optional_split[1].strip())
-			component_name :str	= optional_split[0].strip()
-			#jackpot
-			if self.dice_roll(rarity):
-				#add component
-				component, fact = krcko.load_component(defs.PAT_DIR_PATH + component_name)
-				#something's wrong	
-				if component is None:
-					continue
-				self.scene.add_component(eid, component)
-			else:
-				pass
-	
 
 		#no position component given
 		if "position" not in ent.keys(): 
@@ -288,4 +373,4 @@ class NPCSpawner(krcko.System):
 
 
 
-sys_instance = NPCSpawner()
+sys_instance = TemplateSpawner()
