@@ -120,6 +120,8 @@ class Game:
 		self.current_scene :str	     = "" #name of the current scene
 		self.should_quit   :bool     = False #
 		self.max_fps :int  	     = 60#
+		self.min_window_size	     = rectangle(35, 35, 0,0)
+		self.max_window_size	     = rectangle(250, 250, 0,0)
 		self.m_keys 		     = [] #key buffer
 		self.m_prev_size	     = krcko.point(0,0)
 		self.window_resized :bool    = False	
@@ -294,6 +296,26 @@ class Game:
 		else:
 			self.window_resized = False	
 		
+		#check window size
+		#too small
+		if curr_size.y < self.min_window_size.height or\
+			curr_size.x < self.min_window_size.width:
+			#
+			krcko.curse_clear(self.main_window)
+			krcko.draw_text(self.main_window,"window too small :(",1, 1)
+			curse_update(self.main_window)
+			return
+		#too big
+		if curr_size.y > self.max_window_size.height or\
+			curr_size.x > self.max_window_size.width:
+			#
+			krcko.curse_clear(self.main_window)
+			krcko.draw_text(self.main_window,"window too big :(", 1, 1)
+			curse_update(self.main_window)
+			return
+
+
+
 		self.key_detection_timer += 1
 		#input handling, key_dps per second
 		if self.key_detection_timer * self.key_dps >= self.clock.median_fps:
