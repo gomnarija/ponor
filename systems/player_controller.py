@@ -44,16 +44,6 @@ class PlayerControler(krcko.System):
 			return
 		
 
-
-		#only on ending move, or if current move is empty
-		if not krcko.ActionFlag.ENDING in\
-			self.scene.game.turn_machine.action.flags and\
-		   not krcko.ActionFlag.EMPTY in\
-			self.scene.game.turn_machine.action.flags:
-			#
-			return
-
-
 		new_y :int = self.player_position.y
 		new_x :int = self.player_position.x
 		
@@ -76,7 +66,9 @@ class PlayerControler(krcko.System):
 		if new_y != self.player_position.y or\
 			new_x != self.player_position.x:
 			#create new move action
-			move_action, fact = krcko.create_action("MOVE_PLAYER",[krcko.ActionFlag.SINGLE, krcko.ActionFlag.ENDING], ['new_y', 'new_x'],[new_y, new_x])		
+			move_action = krcko.create_action("MOVE_PLAYER",[krcko.ActionFlag.SINGLE, krcko.ActionFlag.ENTAILS],\
+									['new_y', 'new_x'],[new_y, new_x],\
+									 entails = self.scene.game.turn_machine.ending_action)		
 			#add action to next turn
 			self.scene.game.turn_machine.add_action(move_action)
 
@@ -129,7 +121,10 @@ class PlayerControler(krcko.System):
 		#check current action
 		if game.turn_machine.action_name != "MOVE_PLAYER":
 			return
-		
+	
+
+		logging.debug("TIUSAM")
+	
 		#get the action
 		args = game.turn_machine.action
 
@@ -195,8 +190,8 @@ class PlayerControler(krcko.System):
 		cont_key	:str	=	self.scene.game.controls['MOMO']['CONTINUE']
 
 		#momo notification
-		continue_action, _ = krcko.create_action("CONTINUE", [], [], []) 
-		momo_not_action, _ = krcko.create_action("MOMO",\
+		continue_action = krcko.create_action("CONTINUE", [], [], []) 
+		momo_not_action = krcko.create_action("MOMO",\
 					[krcko.ActionFlag.HALTING],\
 					['text','actions','action_names','action_keys'],\
 					[not_text, [continue_action], ['jasno'], [cont_key]])

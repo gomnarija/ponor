@@ -13,7 +13,6 @@ class ItemController(krcko.System):
 
 	def update(self):
 		self.check_pickup()
-		self.check_pickup()
 
 	def cleanup(self):
 		pass
@@ -74,9 +73,11 @@ class ItemController(krcko.System):
 
 
 		#continue without picking up the item
-		continue_action, _	= krcko.create_action("CONTINUE", [], [], [])
+		continue_action	= krcko.create_action("CONTINUE", [], [], [])
 		#pickup the item
-		pickup_action, _ 	= krcko.create_action("ITEM_PICKUP", [krcko.ActionFlag.ENDING], ['item_eid'], [itm_eid])
+		pickup_action 	= krcko.create_action("ITEM_PICKUP", [krcko.ActionFlag.ENDING, krcko.ActionFlag.ENTAILS],\
+									['item_eid'], [itm_eid],\
+									entails = self.scene.game.turn_machine.ending_action)
 
 		#get item ent
 		itm_ent		= self.scene.get_entity(itm_eid)
@@ -104,7 +105,7 @@ class ItemController(krcko.System):
 		pickup_key :str		= controls['MOMO']['PICKUP']
 
 		#momo form
-		momo_action, _		= krcko.create_action("MOMO",\
+		momo_action		= krcko.create_action("MOMO",\
 						[krcko.ActionFlag.HALTING],\
 						['text','actions','action_names','action_keys'],\
 						[form_text, [pickup_action, continue_action], ["pokupi", "ostavi"], [pickup_key, continue_key]])

@@ -4,8 +4,7 @@ class DungeonView(krcko.System):
 	
 	camera			 :krcko.rectangle = krcko.rectangle(10,10,0,0)
 	camera_speed		 :int		  = 100 #per second
-
-
+	
 	def setup(self):
 		
 		win_height, _ = krcko.get_window_size(self.scene.game.main_window)
@@ -25,13 +24,16 @@ class DungeonView(krcko.System):
 	camera_over_player :bool		  = 	False
 	leftovers				  =	None#particles on screen from previous scene
 								# used for smoother transitions
+	last_draw :int				  =	-1	#last turn number that dungeon view was drawn
 	def update(self):
-
 
 		#get leftover particles
 		if self.leftovers == None:
 			self.leftovers :List[(int, int),int]	=	krcko.get_screen_text(self.scene.game.main_window)
-
+			#
+			self.leftover_size = krcko.point(0,0)
+			self.leftover_size.y,\
+				self.leftover_size.x		=	krcko.get_window_size(self.scene.game.main_window)
 
 		#create curses subwindow that represents
 		# a dungeon view
@@ -67,15 +69,19 @@ class DungeonView(krcko.System):
 		#draw only at the end of the turn,
 		#	or if window gets resized
 		#		or if camera is not over player
-		if krcko.ActionFlag.ENDING in self.scene.game.turn_machine.action.flags or\
-			self.scene.game.window_resized or\
+		if (krcko.ActionFlag.ENDING in self.scene.game.turn_machine.action.flags and\
+			 self.last_turn != self.scene.game.turn_machine.turn_number)	or\
+				self.scene.game.window_resized or\
 				not self.camera_over_player:
-		
-			#clear view
-			krcko.curse_clear(self.view)
-		
+
+
+			logging.debug("IJAAA")
+			logging.debug(self.camera_over_player)	
 			#only after player has been found
 			if self.player_found:
+				#clear dungeon view	
+				krcko.curse_clear(self.view)
+
 				#draw view borders
 				krcko.draw_window_border(self.view, tl = krcko.AC_DIAMOND,\
 							tr = krcko.AC_DIAMOND,\
@@ -87,15 +93,21 @@ class DungeonView(krcko.System):
 				#view title
 				self.display_game_title("[ ponor ]")
 
+				#draw particles inside dungeon view
+				self.draw_particles()
 
-			#draw particles
-			self.draw_particles()
+			#
+
 
 			#draw current room where player is
 			self.draw_current_room()
 		
 			#draw drawable objects
 			self.draw_drawables()
+
+		
+			#
+			self.last_turn	=	self.scene.game.turn_machine.turn_number
 
 
 	
@@ -176,7 +188,7 @@ class DungeonView(krcko.System):
 				self.start_action()
 
 		#
-		self.camera_over_player 	=	center_rect.contains_point(player_position)
+		self.camera_over_player 	=	center_rect.contains_point_full(player_position)
 	
 		#too high
 		if center_rect.bottom < player_position.y:
@@ -470,15 +482,24 @@ class DungeonView(krcko.System):
 		'''draw leftover particles from previous scene
 			for smoother transitions :)
 
-		  needs back_view
-		'''
 		
+		'''
+	
+
+		leftover_size = krcko.point(0,0)
+
+		
+		#if current window is smaller
+		# than leftover one
+		leftover_size.y		=	min(self.back_view_rect.height, self.leftover_size.y)
+		leftover_size.x		=	min(self.back_view_rect.width, self.leftover_size.x)
+	
 		#create view if not already
 		if self.leftover_view == None:
-			self.leftover_view	=	krcko.create_sub_window(self.scene.game.main_window,self.back_view_rect.height, self.back_view_rect.width, self.back_view_rect.y, self.back_view_rect.x)
+			self.leftover_view	=	krcko.create_sub_window(self.scene.game.main_window, leftover_size.y, leftover_size.x, 0, 0)
 
 		#
-		bottom :int	=	self.back_view_rect.bottom - scroll_back
+		bottom :int	=	leftover_size.y - scroll_back
 		
 		#done, terminate view
 		if bottom <= 0 or self.player_found:
@@ -495,10 +516,9 @@ class DungeonView(krcko.System):
 			y    -= scroll_back
 			#
 			if y >= 0 and y < bottom and\
-				x >= 0 and x < self.back_view_rect.right:
+				x >= 0 and x < leftover_size.x:
 				#
 				krcko.draw_char(self.leftover_view, ascii, y, x)
-				pass
 
 		
 
@@ -554,7 +574,7 @@ class DungeonView(krcko.System):
 	def start_action(self) -> None:
 		'''view is done loading, send start action '''
 	
-		start_action, _ = krcko.create_action("START",[krcko.ActionFlag.ENDING], [], [])
+		start_action = krcko.create_action("START",[krcko.ActionFlag.ENDING], [], [])
 		self.scene.game.turn_machine.add_action(start_action)
 	
 				

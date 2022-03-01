@@ -20,10 +20,9 @@ class ActionFlag(Flag):
 
 
 
-def create_action(name :str, flags :List[ActionFlag], props :List[str], vals :List[Any]):
-	action = recordclass(name, ['flags'] + props)
-	a = action(flags,*vals)
-	return a,action
+def create_action(name :str, flags :List[ActionFlag], props :List[str], vals :List[Any], entails = None):
+	action = recordclass(name, ['flags','entails'] + props)
+	return action(flags,entails,*vals)
 
 
 class TurnMachine:
@@ -31,15 +30,23 @@ class TurnMachine:
 
 
 	def __init__(self) -> None:
-
-		#returned when there are no actions in a current turn
-		self.m_empty_action	:recordclass
-		self.m_empty_action, fact = create_action("empty", [ActionFlag.EMPTY], [], [])
-
-		self.m_turn 		:List[recordclass] 	= [self.m_empty_action]
+		
+		self.m_turn 		:List[recordclass] 	= [self.empty_action]
 		self.m_next_turn 	:List[recordclass] 	= []
 		self.m_turn_number	:int		   	= 0
 		self.m_halted		:bool			= False
+
+	
+	@property
+	def empty_action(self) -> recordclass:
+		'''returned when there are no actions in a current turn.'''
+		return create_action("EMPTY", [ActionFlag.EMPTY], [], [])
+
+	@property
+	def ending_action(self) -> recordclass:
+		'''action signaling end of the current turn.'''
+		return create_action("END", [ActionFlag.ENDING], [],[])
+
 	
 	@property
 	def action(self) -> recordclass:
@@ -47,7 +54,7 @@ class TurnMachine:
 		if len(self.m_turn) > 0:
 			return self.m_turn[-1]
 		else:
-			return self.m_empty_action
+			return self.empty_action
 
 	@property
 	def turn_number(self) -> int:
@@ -84,9 +91,15 @@ class TurnMachine:
 				#logging.warning("Action of this type with flag SINGLE already in this turn, type: " + str(action.__class__))
 				return
 
+		
 	
 		self.m_turn.insert(0,action)
-
+			
+		#entailed action
+		if ActionFlag.ENTAILS in action.flags and\
+			action.entails is not None:
+			#
+			self.m_turn.insert(0, action.entails)
 
 		
 
@@ -105,13 +118,19 @@ class TurnMachine:
 
 	
 		self.m_next_turn.insert(0,action)
+	
+		#entailed action
+		if ActionFlag.ENTAILS in action.flags and\
+			action.entails is not None:
+			#
+			self.m_next_turn.insert(0, action.entails)
+
+		
 
 
 
 	def next(self) -> None:
 		''' go to the next action '''
-	
-
 
 		#unless it's halted
 		if self.is_halted:
@@ -122,13 +141,13 @@ class TurnMachine:
 		# if there are any
 		if len(self.m_turn) > 0:
 			self.m_turn.pop()
+			logging.debug(self.action_name)
 		#if no more actions in the current turn, and 
 		# next turn has ENDING flag in some of it's actions, the next
 		#  turn is ready. 
 		elif any(ActionFlag.ENDING in a.flags for a in self.m_next_turn):
 			#
 			self.end_turn()
-			
 		
 		#check for halting		
 		if ActionFlag.HALTING in self.action.flags:
