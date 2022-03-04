@@ -75,8 +75,6 @@ class DungeonView(krcko.System):
 				not self.camera_over_player:
 
 
-			logging.debug("IJAAA")
-			logging.debug(self.camera_over_player)	
 			#only after player has been found
 			if self.player_found:
 				#clear dungeon view	

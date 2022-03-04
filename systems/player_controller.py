@@ -123,7 +123,6 @@ class PlayerControler(krcko.System):
 			return
 	
 
-		logging.debug("TIUSAM")
 	
 		#get the action
 		args = game.turn_machine.action
