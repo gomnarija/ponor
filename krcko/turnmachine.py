@@ -17,7 +17,8 @@ class ActionFlag(Flag):
 	EMPTY		= 4  #no actions in this turn
 
 	HALTING		= 5  #halt next actions, until 
-
+	
+	INSERTING	= 6  #insert this action into current turn
 
 
 def create_action(name :str, flags :List[ActionFlag], props :List[str], vals :List[Any], entails = None):

@@ -150,7 +150,8 @@ class Game:
 		self.controls['MOMO'] =\
 			{
 				'CONTINUE'	: 'KEY_SPACE',
-				'PICKUP'	: 'P'
+				'PICKUP'	: 'p',
+				'ATTACK'	: 'n'
 			}
 
 

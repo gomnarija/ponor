@@ -106,7 +106,7 @@ class ItemController(krcko.System):
 
 		#momo form
 		momo_action		= krcko.create_action("MOMO",\
-						[krcko.ActionFlag.HALTING],\
+						[krcko.ActionFlag.HALTINGm, krcko.ActionFlag.INSERTING],\
 						['text','actions','action_names','action_keys'],\
 						[form_text, [pickup_action, continue_action], ["pokupi", "ostavi"], [pickup_key, continue_key]])
 

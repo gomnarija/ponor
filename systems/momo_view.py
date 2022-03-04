@@ -48,8 +48,13 @@ class MomoView(krcko.System):
 			if key_index != -1:
 				#unhalt the turn machine
 				self.turn_machine.unhalt()
-				#add action for the pressed key
-				self.turn_machine.add_action(action.actions[key_index])
+				#insert it if has inserting flag
+				if krcko.ActionFlag.INSERTING in action.actions[keys_index].flags:
+					#insert action for the pressed key
+					self.turn_machine.insert_action(action.actions[key_index])
+				else:	
+					#add action for the pressed key
+					self.turn_machine.add_action(action.actions[key_index])
 				#empty text buffer
 				self.text_buffer	=	""
 				

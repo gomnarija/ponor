@@ -32,7 +32,12 @@ class NPCController(krcko.System):
 
 
 	def player_interaction(self, npc_eid :int) -> None:
-		'''sends momo action for player/npc interaction'''
+		'''sends momo action for player/npc interaction
+			options:
+				continue
+				talk
+				attack
+		'''
 		
 		npc_ent		=	self.scene.get_entity(npc_eid)
 
@@ -41,19 +46,32 @@ class NPCController(krcko.System):
 			return
 		
 
-		continue_action		=	krcko.create_action("CONTINUE", [], [], [])
-		
-
-
+		#don't do anything
+		continue_action		=	krcko.create_action("CONTINUE", [], [], [])#
 		continue_key :str	=	self.game.controls['MOMO']['CONTINUE']
+		continue_text :str	=	"nastavi"
 
+
+		#attack npc
+		# send out action with attacker and targer eids 
+		player_eid :int		=	self.scene.get_eid_from_name("player")
+		attack_action		=	krcko.create_action("ATTACK",[],\
+								['attacker_eid', 'target_eid'],\
+									[player_eid, npc_eid])	
+	
+		attack_key :str		=	self.game.controls['MOMO']['ATTACK']
+		attack_text :str	=	"napadni"
+
+
+
+		#create momo action
 		momo_action		=	krcko.create_action("MOMO",\
-							[krcko.ActionFlag.HALTING],['text','actions','action_names','action_keys'],\
-								["gavran ispred tebe", [continue_action], ["nastavi"], [continue_key]])
-
+							[krcko.ActionFlag.HALTING, krcko.ActionFlag.INSERTING],\
+								['text','actions','action_names','action_keys'],\
+								["gavran ispred tebe",[continue_action, attack_action], [continue_text, attack_text], [continue_key, attack_key]])
 		
 		
-		#insert
+		#insert momo action
 		self.turn_machine.insert_action(momo_action)	
 
 
