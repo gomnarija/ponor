@@ -14,7 +14,7 @@ class PlayerControler(krcko.System):
 	_started :bool	=	False#wait for start action
 	def update(self):
 		if not self._started:
-			if self.scene.game.turn_machine.action_name == "START":
+			if self.turn_machine.action_name == "START":
 				self._started = True
 			else:
 				return
@@ -40,17 +40,17 @@ class PlayerControler(krcko.System):
 	
 
 		#can't move if turn machine is halted :( 
-		if self.scene.game.turn_machine.is_halted:
+		if self.turn_machine.is_halted:
 			return
 		
 
 		new_y :int = self.player_position.y
 		new_x :int = self.player_position.x
 		
-		controls 	= self.scene.game.controls
+		controls 	= self.game.controls
 
 
-		key = self.scene.game.get_key()
+		key = self.game.get_key()
 
 		if key == controls['PLAYER']['MOVE_UP']:
 			new_y -= 1
@@ -68,9 +68,9 @@ class PlayerControler(krcko.System):
 			#create new move action
 			move_action = krcko.create_action("MOVE_PLAYER",[krcko.ActionFlag.SINGLE, krcko.ActionFlag.ENTAILS],\
 									['new_y', 'new_x'],[new_y, new_x],\
-									 entails = self.scene.game.turn_machine.ending_action)		
+									 entails = self.turn_machine.ending_action)		
 			#add action to next turn
-			self.scene.game.turn_machine.add_action(move_action)
+			self.turn_machine.add_action(move_action)
 
 		
 
@@ -116,7 +116,7 @@ class PlayerControler(krcko.System):
 		'''moves the player, if action is detected'''
 
 		
-		game = self.scene.game
+		game = self.game
 
 		#check current action
 		if game.turn_machine.action_name != "MOVE_PLAYER":
@@ -148,9 +148,9 @@ class PlayerControler(krcko.System):
 	def pickup_detection(self) -> None:
 		'''look for pickup action '''
 
-		if self.scene.game.turn_machine.action_name == "ITEM_PICKUP":
+		if self.turn_machine.action_name == "ITEM_PICKUP":
 			#get eid 
-			itm_eid :int = self.scene.game.turn_machine.action.item_eid
+			itm_eid :int = self.turn_machine.action.item_eid
 			#pickup item
 			self.pickup_item(itm_eid)
 
@@ -186,7 +186,7 @@ class PlayerControler(krcko.System):
 	
 
 		not_text	:str	=	"pokupljeno"
-		cont_key	:str	=	self.scene.game.controls['MOMO']['CONTINUE']
+		cont_key	:str	=	self.game.controls['MOMO']['CONTINUE']
 
 		#momo notification
 		continue_action = krcko.create_action("CONTINUE", [], [], []) 
@@ -197,7 +197,7 @@ class PlayerControler(krcko.System):
 		
 					
 		#insert
-		self.scene.game.turn_machine.insert_action(momo_not_action)
+		self.turn_machine.insert_action(momo_not_action)
 	
 
 
@@ -237,7 +237,7 @@ class PlayerControler(krcko.System):
 
 
 		#set ascii
-		self.player_ent['drawable'].ascii = self.scene.game.get_ascii('PLAYER')
+		self.player_ent['drawable'].ascii = self.game.get_ascii('PLAYER')
 
 
 

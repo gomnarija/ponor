@@ -7,7 +7,7 @@ class DungeonView(krcko.System):
 	
 	def setup(self):
 		
-		win_height, _ = krcko.get_window_size(self.scene.game.main_window)
+		win_height, _ = krcko.get_window_size(self.game.main_window)
 
 		#place camera above player
 		self.player_ent	=	self.scene.get_entity_from_name("player")
@@ -29,11 +29,11 @@ class DungeonView(krcko.System):
 
 		#get leftover particles
 		if self.leftovers == None:
-			self.leftovers :List[(int, int),int]	=	krcko.get_screen_text(self.scene.game.main_window)
+			self.leftovers :List[(int, int),int]	=	krcko.get_screen_text(self.game.main_window)
 			#
 			self.leftover_size = krcko.point(0,0)
 			self.leftover_size.y,\
-				self.leftover_size.x		=	krcko.get_window_size(self.scene.game.main_window)
+				self.leftover_size.x		=	krcko.get_window_size(self.game.main_window)
 
 		#create curses subwindow that represents
 		# a dungeon view
@@ -45,7 +45,7 @@ class DungeonView(krcko.System):
 
 
 		#get median fps
-		m_fps	=	max(10, self.scene.game.clock.median_fps)
+		m_fps	=	max(10, self.game.clock.median_fps)
 
 	
 		self.update_camera()	
@@ -69,9 +69,9 @@ class DungeonView(krcko.System):
 		#draw only at the end of the turn,
 		#	or if window gets resized
 		#		or if camera is not over player
-		if (krcko.ActionFlag.ENDING in self.scene.game.turn_machine.action.flags and\
-			 self.last_turn != self.scene.game.turn_machine.turn_number)	or\
-				self.scene.game.window_resized or\
+		if (krcko.ActionFlag.ENDING in self.turn_machine.action.flags and\
+			 self.last_turn != self.turn_machine.turn_number)	or\
+				self.game.window_resized or\
 				not self.camera_over_player:
 
 
@@ -105,7 +105,7 @@ class DungeonView(krcko.System):
 
 		
 			#
-			self.last_turn	=	self.scene.game.turn_machine.turn_number
+			self.last_turn	=	self.turn_machine.turn_number
 
 
 	
@@ -267,7 +267,7 @@ class DungeonView(krcko.System):
 	def update_view(self) -> None:
 		'''Update a view'''
 		
-		main_window = self.scene.game.main_window
+		main_window = self.game.main_window
 		
 		main_rect   :krcko.rectangle = krcko.rectangle(0,0,0,0)
 
@@ -494,7 +494,7 @@ class DungeonView(krcko.System):
 	
 		#create view if not already
 		if self.leftover_view == None:
-			self.leftover_view	=	krcko.create_sub_window(self.scene.game.main_window, leftover_size.y, leftover_size.x, 0, 0)
+			self.leftover_view	=	krcko.create_sub_window(self.game.main_window, leftover_size.y, leftover_size.x, 0, 0)
 
 		#
 		bottom :int	=	leftover_size.y - scroll_back
@@ -553,7 +553,7 @@ class DungeonView(krcko.System):
 			in the back until player is found
 		''' 
 
-		main_window = self.scene.game.main_window
+		main_window = self.game.main_window
 		main_rect   :krcko.rectangle = krcko.rectangle(0,0,0,0)
 
 		main_rect.height, main_rect.width = krcko.get_window_size(main_window)
@@ -573,7 +573,7 @@ class DungeonView(krcko.System):
 		'''view is done loading, send start action '''
 	
 		start_action = krcko.create_action("START",[krcko.ActionFlag.ENDING], [], [])
-		self.scene.game.turn_machine.add_action(start_action)
+		self.turn_machine.add_action(start_action)
 	
 				
 sys_instance = DungeonView()

@@ -20,6 +20,10 @@ class IntroView(krcko.System):
 		for index in range(0, int(((500 * 500) / 100) * density)):
 			position = krcko.point(self.random.randint(0, 500), self.random.randint(0,500))
 			self.particles.append( (self.random.choice(self.fragments), position))
+
+
+		#play intro song
+		krcko.play_audio(defs.MUS_DIR_PATH + "samo_ti.wav")
 		
 
 
@@ -39,7 +43,7 @@ class IntroView(krcko.System):
 
 		#get median frames per second, it takes some time so it 
 		# needs max :)
-		m_fps	=	max(self.scene.game.clock.median_fps,10)
+		m_fps	=	max(self.game.clock.median_fps,10)
 		
 		#
 		self.cs += 1
@@ -53,7 +57,7 @@ class IntroView(krcko.System):
 				self.draw_logo(0)
 				#setup next scene while waiting
 				if not self.next_scene_loaded:
-					self.scene.game.scene_setup(self.next_scene)
+					self.game.scene_setup(self.next_scene)
 					self.next_scene_loaded = True
 
 
@@ -69,7 +73,7 @@ class IntroView(krcko.System):
 		#clear window, change scenes
 		if self.cs / self.next_scene_time >= m_fps:
 			#krcko.curse_clear(self.view)
-			self.scene.game.change_scene("scena")
+			self.game.change_scene("scena")
 
 	def cleanup(self):
 		pass
@@ -137,7 +141,7 @@ class IntroView(krcko.System):
 	def update_view(self) -> None:
 		''' Update a view''' 
 	
-		main_window = self.scene.game.main_window
+		main_window = self.game.main_window
 
 		
 		main_rect	:krcko.rectangle = krcko.rectangle(0,0,0,0)

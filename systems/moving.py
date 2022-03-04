@@ -23,10 +23,10 @@ class Moving(krcko.System):
 		self.room_rect	= 	self.player_ent['player'].room_rect
 
 		#get current action
-		action = self.scene.game.turn_machine.action
+		action = self.turn_machine.action
 		
 		#check if npc should move
-		if self.scene.game.turn_machine.action_name == "MOVE_NPC":
+		if self.turn_machine.action_name == "MOVE_NPC":
 			self.do_move(action.npc_eid, action.new_y, action.new_x)
 
 
@@ -186,7 +186,7 @@ class Moving(krcko.System):
 		#create move action
 		npc_move_action		 = krcko.create_action("MOVE_NPC", [], ['npc_eid', 'new_y', 'new_x'], [npc_eid, closest_move.y, closest_move.x])
 		#add action to next turn
-		self.scene.game.turn_machine.add_action(npc_move_action)	
+		self.turn_machine.add_action(npc_move_action)	
 
 
 

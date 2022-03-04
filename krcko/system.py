@@ -16,6 +16,17 @@ class System(metaclass=ABCMeta):
 		'''
 		self.scene = scene
 
+	def add_game(self, game: Any) -> None:
+		'''.'''
+
+		self.game = game
+	
+	def add_turn_machine(self, turn_machine :Any) -> None:
+		'''.'''
+
+		self.turn_machine = turn_machine
+
+
 	@abstractmethod
 	def setup(self) -> None:
 		'''

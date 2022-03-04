@@ -330,7 +330,7 @@ class TemplateSpawner(krcko.System):
 
 
 		#get ascii from table
-		ent['drawable'].ascii = self.scene.game.get_ascii(ent['drawable'].ascii_id)
+		ent['drawable'].ascii = self.game.get_ascii(ent['drawable'].ascii_id)
 
 
 		#Can't be too close to other drawables

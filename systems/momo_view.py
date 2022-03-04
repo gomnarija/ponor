@@ -19,7 +19,7 @@ class MomoView(krcko.System):
 	def update(self):
 		
 		if not self._started:
-			if self.scene.game.turn_machine.action_name == "START":
+			if self.turn_machine.action_name == "START":
 				self._started = True
 			else:
 				return		
@@ -35,9 +35,9 @@ class MomoView(krcko.System):
 		
 
 		#check for momo action
-		if self.scene.game.turn_machine.action_name == "MOMO":
+		if self.turn_machine.action_name == "MOMO":
 			#get action
-			action = self.scene.game.turn_machine.action
+			action = self.turn_machine.action
 			#draw text and options
 			#copy text to buffer
 			self.buffer_text(action.text)
@@ -47,9 +47,9 @@ class MomoView(krcko.System):
 			#-1 if not pressed, else action_keys index
 			if key_index != -1:
 				#unhalt the turn machine
-				self.scene.game.turn_machine.unhalt()
+				self.turn_machine.unhalt()
 				#add action for the pressed key
-				self.scene.game.turn_machine.add_action(action.actions[key_index])
+				self.turn_machine.add_action(action.actions[key_index])
 				#empty text buffer
 				self.text_buffer	=	""
 				
@@ -69,7 +69,7 @@ class MomoView(krcko.System):
 
 		self.cs += 1
 		#:
-		if self.letters_per_second * self.cs  > self.scene.game.clock.median_fps:
+		if self.letters_per_second * self.cs  > self.game.clock.median_fps:
 			self.cs = 0 
 			self.text_buffer += text[len(self.text_buffer)]
 
@@ -82,7 +82,7 @@ class MomoView(krcko.System):
 
 		for index in range(0, len(action_keys)):
 			#check
-			if action_keys[index] == self.scene.game.get_key():
+			if action_keys[index] == self.game.get_key():
 				return index 
 
 
@@ -157,7 +157,7 @@ class MomoView(krcko.System):
 	def update_view(self):
 		''' Update a view''' 
 	
-		main_window = self.scene.game.main_window
+		main_window = self.game.main_window
 		
 		
 		

@@ -45,6 +45,14 @@ class Scene:
 	def add_game(self, game) -> None:
 		'''add game'''
 		self.game = game
+		
+		#add game, turn_machine to systems
+		for system_key in self.m_systems:
+			#
+			self.m_systems[system_key].add_game(game)
+			#
+			self.m_systems[system_key].add_turn_machine(game.turn_machine)
+		
 
 	def add_entities_to_group(self, gid: int, *eids: int) -> None:
 		'''Add entities to group 

@@ -77,7 +77,7 @@ class ItemController(krcko.System):
 		#pickup the item
 		pickup_action 	= krcko.create_action("ITEM_PICKUP", [krcko.ActionFlag.ENDING, krcko.ActionFlag.ENTAILS],\
 									['item_eid'], [itm_eid],\
-									entails = self.scene.game.turn_machine.ending_action)
+									entails = self.turn_machine.ending_action)
 
 		#get item ent
 		itm_ent		= self.scene.get_entity(itm_eid)
@@ -99,7 +99,7 @@ class ItemController(krcko.System):
 		form_text :str		=	self.pickup_momo.pick("DETECT") + name + " [ " + str(amount) + " ]"
 		
 		#control keys
-		controls 		= self.scene.game.controls
+		controls 		= self.game.controls
 		
 		continue_key :str	= controls['MOMO']['CONTINUE']
 		pickup_key :str		= controls['MOMO']['PICKUP']
@@ -112,7 +112,7 @@ class ItemController(krcko.System):
 
 
 		#insert 
-		self.scene.game.turn_machine.insert_action(momo_action)
+		self.turn_machine.insert_action(momo_action)
 
 
 

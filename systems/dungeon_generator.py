@@ -91,7 +91,7 @@ class DungeonGenerator(krcko.System):
 			# ascii 
 			# floor_rects
 			room_floor_ascii 	:int
-			room_floor_ascii	= self.scene.game.get_ascii('ROOM_FLOOR')
+			room_floor_ascii	= self.game.get_ascii('ROOM_FLOOR')
 
 	
 			floor_component = floor_component_fact(room_floor_ascii, rects)
@@ -149,7 +149,7 @@ class DungeonGenerator(krcko.System):
 			# floor tiles	
 
 			hallway_floor_ascii 	:int
-			hallway_floor_ascii	= self.scene.game.get_ascii('HALLWAY_FLOOR')
+			hallway_floor_ascii	= self.game.get_ascii('HALLWAY_FLOOR')
 
 
 			floor_component   = floor_component_fact(hallway_floor_ascii , rects)
@@ -271,7 +271,7 @@ class DungeonGenerator(krcko.System):
 				# wall height
 				# wall width
 				wall_ascii 	:int
-				wall_ascii	= self.scene.game.get_ascii('WALL')
+				wall_ascii	= self.game.get_ascii('WALL')
 
 				wall_component = wall_component_fact(wall_ascii,trimmed_wall.height,trimmed_wall.width)
 				

@@ -14,7 +14,7 @@ class InventoryView(krcko.System):
 	def update(self):
 		
 		if not self._started:
-			if self.scene.game.turn_machine.action_name == "START":
+			if self.turn_machine.action_name == "START":
 				self._started = True
 			else:
 				return
@@ -116,7 +116,7 @@ class InventoryView(krcko.System):
 	def update_view(self):
 		''' Update a view''' 
 	
-		main_window = self.scene.game.main_window
+		main_window = self.game.main_window
 
 		
 		main_rect	:krcko.rectangle = krcko.rectangle(0,0,0,0)
