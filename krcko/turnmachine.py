@@ -26,6 +26,18 @@ def create_action(name :str, flags :List[ActionFlag], props :List[str], vals :Li
 	return action(flags,entails,*vals)
 
 
+def momo_action(momo_text :str, actions :List[any], action_names :List[str], action_keys :List[str]) -> Any:
+		'''creates momo action'''
+
+		return 	create_action("MOMO",\
+						[ActionFlag.HALTING,ActionFlag.INSERTING],\
+							['text', 'actions', 'action_names', 'action_keys'],\
+								[momo_text, actions, action_names, action_keys])
+
+
+
+
+
 class TurnMachine:
 	'''state machine responsible for turn handling '''
 
@@ -93,6 +105,12 @@ class TurnMachine:
 				return
 
 		
+		#if current turn is empty insert empty
+		# action that will serve until end of current 
+		#  run
+		if len(self.m_turn) == 0: 
+			self.m_turn.insert(0, self.empty_action)
+
 	
 		self.m_turn.insert(0,action)
 			
@@ -102,7 +120,7 @@ class TurnMachine:
 			#
 			self.m_turn.insert(0, action.entails)
 
-		
+			
 
 
 
@@ -140,14 +158,7 @@ class TurnMachine:
 		#go to the next action,
 		# if there are any
 		if len(self.m_turn) > 0:
-			#if it's inserted, let it be 
-			# for another round 
-			if not ActionFlag.INSERTING in self.action.flags:
-				self.m_turn.pop()
-			else:
-				#remove inserting flag, so
-				# that it will be poped on the next next()
-				self.action.flags.remove(ActionFlag.INSERTING)
+			self.m_turn.pop()
 
 		#if no more actions in the current turn, and 
 		# next turn has ENDING flag in some of it's actions, the next
