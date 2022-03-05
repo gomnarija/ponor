@@ -264,9 +264,14 @@ class TemplateSpawner(krcko.System):
 						val_name :str = token.split("=")[0]
 						value = token.split("=")[1]
 			
-						#convert to int if not inside ""
-						#TODO: floating 
-						if value[0] != '"':
+
+						#convert to bool if not inside ""
+						if value == "True":
+							value = True
+						elif value == "False":
+							value = False
+						#convert to int if not inside "", and not bool
+						elif value[0] != '"':
 							#min_val^max_val
 							if "^" in value:
 								min_v = value.split("^")[0]
