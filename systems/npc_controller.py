@@ -98,8 +98,22 @@ class NPCController(krcko.System):
 		if not self.room_rect.contains_point(np):
 			return False
 
+		#if it's already interacting 
+		# check if player is still inside radius
+		# dont't interact again
+		if npc_ent['npc'].is_interacting == True:
+			#check radius
+			if pp.distance(np) >= 2:
+				#not interacting anymore
+				npc_ent['npc'].is_interacting = False
+			#don't interact again
+			return
+
+
 		#check distance
 		if pp.distance(np) < 2:
+			#is interacting
+			npc_ent['npc'].is_interacting = True
 			self.player_interaction(npc_eid)
 			return True
 

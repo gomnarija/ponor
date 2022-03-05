@@ -34,6 +34,12 @@ class Moving(krcko.System):
 		if krcko.ActionFlag.ENDING in action.flags:
 			#move npcs in this room that have movable component
 			for npc_ent, npc_eid in self.scene.gen_entities("movable"):
+				#if npc is interacting with player
+				# don't move it 
+				if self.scene.entity_has_component(npc_eid, "npc") and\
+					npc_ent['npc'].is_interacting:
+					#
+					continue
 				#move the ones that are inside current
 				# room_rect
 				if self.room_rect.contains_point(npc_ent['position']):
