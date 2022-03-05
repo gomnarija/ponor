@@ -137,11 +137,18 @@ class TurnMachine:
 		if self.is_halted:
 			return
 
-	
 		#go to the next action,
 		# if there are any
 		if len(self.m_turn) > 0:
-			self.m_turn.pop()
+			#if it's inserted, let it be 
+			# for another round 
+			if not ActionFlag.INSERTING in self.action.flags:
+				self.m_turn.pop()
+			else:
+				#remove inserting flag, so
+				# that it will be poped on the next next()
+				self.action.flags.remove(ActionFlag.INSERTING)
+
 		#if no more actions in the current turn, and 
 		# next turn has ENDING flag in some of it's actions, the next
 		#  turn is ready. 
