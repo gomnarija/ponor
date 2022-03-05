@@ -139,6 +139,19 @@ class PlayerControler(krcko.System):
 		if not self.is_floor(krcko.point(new_y, new_x)):
 			return
 		
+		#check if there is a npc on the new position
+		for npc_ent, npc_eid in self.scene.gen_entities("npc"):
+			#must have position and drawable component
+			if not self.scene.entity_has_component(npc_eid, "position") or\
+				not self.scene.entity_has_component(npc_eid, "drawable"):
+				#
+				continue
+			#check
+			if npc_ent['position'].y == new_y and\
+				npc_ent['position'].x == new_x:
+				#don't move
+				return
+
 
 		self.player_position.y = new_y
 		self.player_position.x = new_x
