@@ -9,6 +9,8 @@ class PlayerControler(krcko.System):
 		self.player_position = self.player_ent['position']
 		self.spawn_player()
 
+		self.pickup_momo = krcko.Momo()
+		self.pickup_momo.load(defs.MOM_DIR_PATH + "item_pickup.momo")
 
 
 	_started :bool	=	False#wait for start action
@@ -96,18 +98,36 @@ class PlayerControler(krcko.System):
 	def find_room_rect(self) -> None:
 		''' finds a room rect that contains players '''
 		
-		rooms_group = self.scene.get_group_from_name("rooms")	
-		#go trough rooms
-		for room_eid in rooms_group:
-			room_ent = self.scene.get_entity(room_eid)
-			#check if room rect contains player
-			position :krcko.point = krcko.point(self.player_position.y, self.player_position.x)
-			#it does, assign it
-			if room_ent['room'].room_rect.contains_point_full(position):
-				self.player_ent['player'].room_rect = room_ent['room'].room_rect
-				#assign current room
-				self.player_ent['player'].current_room = room_eid	
-				return
+		#get room
+		current_room_eid :int = self.player_ent['player'].current_room
+		room_ent = self.scene.get_entity(current_room_eid)
+		if not self.scene.entity_has_component(current_room_eid, "room"):
+			logging.error("failed to get current room")
+			return
+
+		#hallways in this room
+		hallways = room_ent['room'].hallways
+		
+	
+		#go trough hallway rooms
+		for hallway_eid in hallways:
+			#get hallway
+			hallway_ent = self.scene.get_entity(hallway_eid)
+			if not self.scene.entity_has_component(hallway_eid, "hallway"):
+				logging.error("failed to get hallway entity")
+				continue
+
+			#got trough rooms that this hallway connects		
+			for room_eid in hallway_ent['hallway'].rooms:
+				room_ent = self.scene.get_entity(room_eid)
+				#check if room rect contains player
+				position :krcko.point = krcko.point(self.player_position.y, self.player_position.x)
+				#it does, assign it
+				if room_ent['room'].room_rect.contains_point_full(position):
+					self.player_ent['player'].room_rect = room_ent['room'].room_rect
+					#assign current room
+					self.player_ent['player'].current_room = room_eid	
+					return
 
 
 
@@ -196,18 +216,19 @@ class PlayerControler(krcko.System):
 		self.player_ent['inventory'].items.append(itm_eid)
 		self.player_ent['inventory'].weight += int(item_ent['item'].weight) * int(item_ent['item'].amount)	
 
-	
 
-		not_text	:str	=	"pokupljeno"
+
+		#momo
+		self.pickup_momo.add_arguments({'plu' : 1 if item_ent['item'] == 1 else 2})
+		self.pickup_momo.run()
+
+		not_text	:str	=	self.pickup_momo.pick("PICKUP")
 		cont_key	:str	=	self.game.controls['MOMO']['CONTINUE']
 
 		#momo notification
 		continue_action = krcko.create_action("CONTINUE", [], [], []) 
-		momo_not_action = krcko.create_action("MOMO",\
-					[krcko.ActionFlag.HALTING],\
-					['text','actions','action_names','action_keys'],\
-					[not_text, [continue_action], ['jasno'], [cont_key]])
-		
+		momo_not_action = krcko.momo_action(not_text, [continue_action], ['jasno'], [cont_key]) 
+
 					
 		#insert
 		self.turn_machine.insert_action(momo_not_action)
