@@ -186,7 +186,7 @@ class Momo():
 
 		return text, condition
 	
-	def read(self, input :str) -> None:
+	def read(self, input :str, fields :List[str]) -> None:
 		'''read input string'''
 		
 		tokens :List[str] = re.findall(self.m_magic, input)
@@ -205,8 +205,13 @@ class Momo():
 			token :str	=	tokens[index]
 			#> or >> or EOF 
 			if token[0] == ">" or index == len(tokens)-1:
+				#current field must be in fields
+				if not curr_field in fields and len(fields) > 0:
+					#empty line 
+					line = []
+				
 				#if there is a line, parse it 
-				if len(line) > 0:
+				elif len(line) > 0:
 					#parse line
 					text :str
 					condition :str
@@ -277,15 +282,15 @@ class Momo():
 			logging.error("IO error : " + str(e))
 
 
-	def run(self) -> None:
-		'''read saved input'''
+	def run(self, fields = []) -> None:
+		'''read saved input, only given fields will be read, or all if fields not given'''
 
 		#nothing loaded
 		if self.m_input == "":
 			logging.warning("nothing loaded")
 			return
 
-		self.read(self.m_input)	
+		self.read(self.m_input, fields)	
 
 	def clear(self) -> None:
 		'''clear arguments and avaliables'''
