@@ -135,7 +135,8 @@ class Momo():
 
 	def parse_line(self, tokens :List[str], deps :List[str]) -> Tuple[str, str]:
 		'''parses line, returns text and condition'''
-	
+
+
 
 		dep :str
 		#check dependencies
@@ -203,7 +204,12 @@ class Momo():
 		while index < len(tokens):
 			#
 			token :str	=	tokens[index]
-			#> or >> or EOF 
+			#EOF
+			if index == len(tokens)-1:
+				#add current token
+				line.append(token)
+				
+			#> or >> or EOF
 			if token[0] == ">" or index == len(tokens)-1:
 				#current field must be in fields
 				if not curr_field in fields and len(fields) > 0:
@@ -227,7 +233,6 @@ class Momo():
 
 					#clear line 
 					line = []
-
 
 
 				#new field
