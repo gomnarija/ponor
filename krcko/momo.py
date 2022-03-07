@@ -1,5 +1,5 @@
 import re
-from typing import List,Dict, Any
+from typing import List, Dict, Any, Tuple
 import random
 import logging
 import sys
@@ -9,11 +9,13 @@ class Momo():
 
 	def __init__(self):
 	
-		self.m_magic 		:str = '[\s]*(:{1,2}|"(?:\\.|[^\\"])*"?|\[[\w:\d,-^]*\]|[a-zA-Z]+)'
+		self.m_magic 		:str = '[\s]*(>{1,2}|"(?:\\.|[^\\"])*"?|\[[\w:\d,-^]*\]|[a-zA-Z:, ]+|\+)'
 		self.m_input		:str = ""
-		
+	
+
 		self.m_avaliable :Dict[str,List[str]]	= {} #avaliable fields
 		self.m_arguments :Dict[str, int]	= {} #arguments 
+
 
 
 
@@ -102,77 +104,166 @@ class Momo():
 		return False
 
 
+	def parse_field_name(self, token :str) -> Tuple[str, List[str]]:
+		'''parses field name token, returns field name and dependencies'''
+
+		#FIELD_NAME : var, var
+		field_name :str
+		deps :List[str] = []
+	
+		#clear white space
+		token = token.replace(" ","")	
+	
+		token_split :List[str]	=	token.split(':')
+			
+		#field name
+		field_name = token_split[0]
+		#must be all letters
+		if not field_name.isalpha():
+			logging.error("Wrong field syntax")
+			return None, None
+
+		#check if there are dependencies
+		if len(token_split) > 1:
+			deps = token_split[1].split(',')
+
+
+		#
+		return 	field_name, deps	
+
+
+
+	def parse_line(self, tokens :List[str], deps :List[str]) -> Tuple[str, str]:
+		'''parses line, returns text and condition'''
+	
+
+		dep :str
+		#check dependencies
+		for dep in deps:
+			if dep not in self.m_arguments.keys():
+				logging.error("Missing dependency: " + dep)
+				return "", ""
+
+	
+		#final line text
+		text :str 	= ""
+		#condition token
+		condition :str = ""
+		
+		token :str
+		c :bool = False
+		for token in tokens:
+		#string literal
+			if token[0] == '"' and token[-1] == '"':
+				#strip the "" and add it to final text 
+				text += token[1:-1]
+				continue
+			else:
+				#remove white space
+				token = token.replace(" ", "")
+
+
+			#decor :)
+			if token == "+":
+				continue	
+			
+			#condition
+			if token == ":":
+				#next token is condition string
+				c = True	
+				continue
+			#get condition and break
+			if c:
+				condition = token
+				break	
+			#variable
+			if token not in self.m_arguments.keys():
+				logging.error("missing argument: " + token)	
+				continue
+			#all good
+			text += str(self.m_arguments[token])
+			
+
+		return text, condition
+	
 	def read(self, input :str) -> None:
 		'''read input string'''
 		
 		tokens :List[str] = re.findall(self.m_magic, input)
+	
+
+		#required variables
+		dependencies :List[str] = []
 		
+	
 		#parse tokens
 		index 	:int	=	0
 		curr_field :str =	"DEFAULT"
-		for index in range(0,len(tokens)):
+		line :List[str]	=	[]
+		while index < len(tokens):
 			#
 			token :str	=	tokens[index]
-			#new field
-			if token == "::":
-				#go for the next token
-				index+=1
-				#out of bounds
-				if index >= len(tokens):
-					logging.error("Missing field name")
-					break
+			#> or >> or EOF 
+			if token[0] == ">" or index == len(tokens)-1:
+				#if there is a line, parse it 
+				if len(line) > 0:
+					#parse line
+					text :str
+					condition :str
+					text, condition = self.parse_line(line, dependencies)
+					#if condition is met or no condition given, the text is avaliable
+					if condition == "" or self.check_condition(condition):
+						#check if field already exists
+						if curr_field in self.m_avaliable.keys():
+							self.m_avaliable[curr_field].append(text)
+						#if not create it
+						else:
+							self.m_avaliable[curr_field] = [text]				
 
-				token = tokens[index]
-				#must be all letters
-				if not token.isalpha():
-					logging.error("Wrong field syntax.")
-					continue
-				#all good
-				curr_field = token
-				continue
+					#clear line 
+					line = []
 
-			#text : condition
-			elif token == ":":
-				#go for the previous one, text
-				index-=1
-				token = tokens[index]
-				#must start with "	
-				if token[0] != '"':
+
+
+				#new field
+				if token == ">>":
+					#clear previous dependencies
+					dependencies = []
+					#go for the next token
 					index+=1
-					logging.error('Text must be inside ""')
-					continue
-				#get text
-				text :str = token
-				
-				#go for the condition
-				index+=2
-				token = tokens[index]
-				#out of bounds
-				if index >= len(tokens):
-					logging.error("Wrong syntax")
-					break
+					#out of bounds
+					if index >= len(tokens):
+						logging.error("Missing field name")
+						break
 
-				#must start with [
-				if token[0] != '[':
-					index -= 1
-					logging.error("Conditions must be inside []")
-					continue
+					token = tokens[index]
+		
+					field_name :str
+					deps	:List[str]
+					#parse field name
+					field_name, deps = self.parse_field_name(token)
+					#something's wrong
+					if field_name is None or\
+						deps is None:
+						#
+						return
+					
+					#all good
+					curr_field = field_name
+					dep :str
+					#add dependencies
+					for dep in deps:
+						if dep not in dependencies:
+							dependencies.append(dep)
 
-				#get condition
-				condition :str = token
-						
-				#if condition is met, the text is avaliable
-				if self.check_condition(condition):
-					#check if field already exists
-					if curr_field in self.m_avaliable.keys():
-						self.m_avaliable[curr_field].append(text[1:-1])
-					#if not create it
-					else:
-						self.m_avaliable[curr_field] = [text[1:-1]]				
 
-			else:
 
-				continue	
+			else:		
+				#fill line
+				line.append(token)
+		
+			#
+			index+=1
 
 
 
