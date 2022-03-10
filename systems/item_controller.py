@@ -90,13 +90,13 @@ class ItemController(krcko.System):
 		#momo arguments
 		#pickup form text
 		#plu - plurality, 1 sing, 2 mult
-		self.pickup_momo.add_arguments({'plu' : 1 if amount == 1 else 2})  
-		self.pickup_momo.run()
+		self.pickup_momo.add_arguments({'name' : name,'amount' : amount,  'plu' : (1 if amount == 1 else 2)})
+		self.pickup_momo.run(fields=["DETECT"])
 
 
 
 		#pickup_momo[DETECT] + item_name [item_amount] . 
-		form_text :str		=	self.pickup_momo.pick("DETECT") + name + " [ " + str(amount) + " ]"
+		form_text :str		=	self.pickup_momo.pick("DETECT")
 		
 		#control keys
 		controls 		= self.game.controls

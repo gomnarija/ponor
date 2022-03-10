@@ -151,7 +151,8 @@ class Game:
 			{
 				'CONTINUE'	: 'KEY_SPACE',
 				'PICKUP'	: 'p',
-				'ATTACK'	: 'n'
+				'ATTACK'	: 'n',
+				'EQUIP'		: 'u'
 			}
 
 
@@ -165,7 +166,8 @@ class Game:
 				'ROOM_FLOOR'	:	4194430,
 				'HALLWAY_FLOOR'	:	4194401,
 				'RAVEN'		:	71,
-				'MONEY'		:	42
+				'MONEY'		:	42,
+				'SWORD'		:	33
 			}
 
 

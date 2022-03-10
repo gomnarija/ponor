@@ -56,7 +56,7 @@ class InventoryView(krcko.System):
 
 		#only while turn machine is unhalted,
 		# detect inspection keys	
-		if not self.turn_machine.is_haltedi and key >= "0" and key <= "9":
+		if not self.turn_machine.is_halted and key >= "0" and key <= "9":
 			if not self.turn_machine.is_halted:
 				self.inspect_item(int(key))
 

@@ -1,7 +1,9 @@
 class DungeonView(krcko.System):
 	'''Draws dungeon stuff'''
 
+	import time
 	
+
 	camera			 :krcko.rectangle = krcko.rectangle(10,10,0,0)
 	camera_speed		 :int		  = 100 #per second
 	
@@ -572,6 +574,10 @@ class DungeonView(krcko.System):
 	def start_action(self) -> None:
 		'''view is done loading, send start action '''
 	
+		#wait a bit 
+
+		self.time.sleep(0.1)
+
 		start_action = krcko.create_action("START",[krcko.ActionFlag.ENDING], [], [])
 		self.turn_machine.add_action(start_action)
 	

@@ -219,8 +219,8 @@ class PlayerControler(krcko.System):
 
 
 		#momo
-		self.pickup_momo.add_arguments({'plu' : 1 if item_ent['item'] == 1 else 2})
-		self.pickup_momo.run()
+		self.pickup_momo.add_arguments({'name' : item_ent['item'].name})
+		self.pickup_momo.run(fields=["PICKUP"])
 
 		not_text	:str	=	self.pickup_momo.pick("PICKUP")
 		cont_key	:str	=	self.game.controls['MOMO']['CONTINUE']
