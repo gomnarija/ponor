@@ -1,0 +1,9 @@
+>>DEFAULT : name, amount, weight
+>"imas " + name + " [ " + amount + " ]" +  ". ukupna tezina je " + weight + "." 
+>name + " komada [ " + amount + " ]" +  ". tezina iznosi " + weight + "." 
+
+
+>>WEAPONS : name, damage, durability, crt
+>name + " sa udarnom moci " + damage + " i sansom za kritican udarac od " + crt
++ " posto. preostalih udaraca " + durability + "."
+

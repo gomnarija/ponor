@@ -1,0 +1,11 @@
+>>DETECT : name, plu, amount
+>"nailazis na "+name+" [ "+amount+" ]"
+>"nalazis "+name+" [ "+amount+" ]"
+>"ispred tebe je "+name+" [ "+amount+" ]"	:	[plu:1]
+>"ispred tebe su "+name+" [ "+amount+" ]"	:	[plu:2]
+
+>>PICKUP : name
+>"pokupljeno."
+>"dodato u prtljag."
+>"ubacio si " + name + " u prtljag."
+>"pokupio si " + name + "."

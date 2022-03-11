@@ -1,0 +1,16 @@
+[SYSTEM]
+/home/laza/pro/ponor/systems/dungeon_generator.py
+/home/laza/pro/ponor/systems/particles.py
+/home/laza/pro/ponor/systems/template_spawner.py
+/home/laza/pro/ponor/systems/player_controller.py
+/home/laza/pro/ponor/systems/npc_controller.py
+/home/laza/pro/ponor/systems/item_controller.py
+/home/laza/pro/ponor/systems/weapons.py
+/home/laza/pro/ponor/systems/moving.py
+/home/laza/pro/ponor/systems/stats_view.py
+/home/laza/pro/ponor/systems/dungeon_view.py
+/home/laza/pro/ponor/systems/inventory_view.py
+/home/laza/pro/ponor/systems/momo_view.py
+/home/laza/pro/ponor/systems/brana.py
+[ENTITY]
+/home/laza/pro/ponor/res/entities/player

@@ -1,0 +1,9 @@
+{"component": 
+	"drawable", 
+	"fields": 
+	{
+		"ascii_id"	: "PLAYER", 
+		"ascii"		: 64,
+		"color"		: 7
+	}
+}

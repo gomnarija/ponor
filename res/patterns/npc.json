@@ -1,0 +1,8 @@
+{"component": 
+	"npc", 
+	"fields": 
+	{
+		"class_name": "",
+		"is_interacting" : false 
+	}
+}

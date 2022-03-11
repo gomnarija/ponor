@@ -55,7 +55,7 @@ class NPCController(krcko.System):
 		#attack npc
 		# send out action with attacker and targer eids 
 		player_eid :int		=	self.scene.get_eid_from_name("player")
-		attack_action		=	krcko.create_action("ATTACK",[],\
+		attack_action		=	krcko.create_action("ATTACK",[krcko.ActionFlag.ENDING],\
 								['attacker_eid', 'target_eid'],\
 									[player_eid, npc_eid])	
 	
@@ -63,14 +63,14 @@ class NPCController(krcko.System):
 		attack_text :str	=	"napadni"
 
 
+		#
+		text :str		=	"bla bla"
+
 
 		#create momo action
-		momo_action		=	krcko.create_action("MOMO",\
-							[krcko.ActionFlag.HALTING, krcko.ActionFlag.INSERTING],\
-								['text','actions','action_names','action_keys'],\
-								["gavran ispred tebe",[continue_action, attack_action], [continue_text, attack_text], [continue_key, attack_key]])
-		
-		
+		momo_action		=	krcko.momo_action(text, [continue_action, attack_action], [continue_text, attack_text], [continue_key, attack_key])
+
+	
 		#insert momo action
 		self.turn_machine.insert_action(momo_action)	
 

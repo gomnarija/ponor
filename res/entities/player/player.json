@@ -1,0 +1,13 @@
+{"component": 
+	"player", 
+	"fields": 
+	{
+		"name"		: "laza",
+		"room_rect" 	: "krcko.rectangle",
+		"current_room" 	: 0, 
+		"depth"		: 1,
+		"eyes"		: 2,
+		"hands"		: 2,
+		"legs"		: 2
+	}
+}

@@ -1,0 +1,11 @@
+{"component": 
+	"weapon", 
+	"fields": 
+	{
+		"damage" : 0,
+		"durability" : 10,
+		"critical_strike_chance" : 5
+		
+	 
+	}
+}

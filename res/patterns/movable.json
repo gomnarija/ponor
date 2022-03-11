@@ -1,0 +1,9 @@
+{
+"component": "movable", 
+	"fields": 
+	{
+		"can_move" 		: true,
+		"turns_per_move" 	: 1,
+		"goal"			: "krcko.point" 	
+	}
+}

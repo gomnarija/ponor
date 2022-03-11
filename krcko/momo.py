@@ -290,6 +290,9 @@ class Momo():
 	def run(self, fields = []) -> None:
 		'''read saved input, only given fields will be read, or all if fields not given'''
 
+		#clear fields
+		self.m_avaliable = {}
+
 		#nothing loaded
 		if self.m_input == "":
 			logging.warning("nothing loaded")
@@ -306,9 +309,13 @@ class Momo():
 
 	def add_arguments(self, args :Dict[str, int]) -> None:
 		'''add arguments'''
-		
+	
+		#remove previous ones
+		self.m_arguments = {}
 		for arg in args.keys():
 			self.m_arguments[arg] = args[arg]
+
+
 
 
 	def pick(self, field :str) -> str:

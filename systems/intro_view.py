@@ -23,7 +23,7 @@ class IntroView(krcko.System):
 
 
 		#play intro song
-		krcko.play_audio(defs.MUS_DIR_PATH + "samo_ti.wav")
+		#krcko.play_audio(defs.MUS_DIR_PATH + "samo_ti.wav")
 		
 
 

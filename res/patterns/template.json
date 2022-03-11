@@ -1,0 +1,10 @@
+{
+"component": "template", 
+	"fields": 
+	{
+		"name" 			: "TEMPLATE",
+		"min_depth" 		: 1,
+		"max_depth"		: 1,
+		"rarity"		: 50
+	}
+}
