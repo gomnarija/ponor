@@ -30,10 +30,6 @@ class Weapons(krcko.System):
 
 
 
-	def dice_roll(self, chance :int) -> bool:
-		'''role them dice'''
-		return self.random.randint(0,100) <= chance 
-
 	def do_attack(self, attacker_eid :int, target_eid :int) -> None:
 		'''attack target if attacker has an equipped weapon'''
 	
@@ -65,7 +61,7 @@ class Weapons(krcko.System):
 				base_damage :int = weapon_ent['weapon'].damage
 				crt_chance :int = weapon_ent['weapon'].critical_strike_chance
 				#try crit, else base 
-				damage += base_damage * 2 if self.dice_roll(crt_chance) else base_damage
+				damage += base_damage * 2 if krcko.dice_roll(crt_chance) else base_damage
 
 		#no weapon, no attacking :(
 		if not has_weapon:

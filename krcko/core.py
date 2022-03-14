@@ -14,10 +14,17 @@ import logging
 import time
 import statistics
 from configparser import ConfigParser
+import random
 
 
 
 	
+
+
+
+def dice_roll(chance :int) -> bool:
+	'''roll the dice'''
+	return self.random.randint(0,100) <= chance	
 
 
 class Clock:
