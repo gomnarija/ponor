@@ -2,7 +2,7 @@ from typing import Iterator
 import os
 import sys
 import traceback
-
+import random
 
 def gen_files(dir: str) -> Iterator[str]:
         '''
@@ -41,4 +41,11 @@ def execute(cmd :str, globals=None, locals = None, description='krcko'):
 	else:
 		return
 	raise InterpreterError("%s at line %d of %s: %s" % (error_class, line_number, description, detail))
+
+
+
+def dice_roll(chance :int) -> bool:
+	'''roll the dice'''
+	return random.randint(0,100) <= chance	
+
 
