@@ -7,6 +7,7 @@ from krcko.math import *
 from krcko.turnmachine import *
 from krcko.momo	import *
 from krcko.audio import *
+from krcko.template import *
 
 from typing import Dict,Tuple,Deque,Optional
 from collections import deque
@@ -17,14 +18,6 @@ from configparser import ConfigParser
 import random
 
 
-
-	
-
-
-
-def dice_roll(chance :int) -> bool:
-	'''roll the dice'''
-	return self.random.randint(0,100) <= chance	
 
 
 class Clock:

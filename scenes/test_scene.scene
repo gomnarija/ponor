@@ -2,6 +2,7 @@
 /home/laza/pro/ponor/systems/dungeon_generator.py
 /home/laza/pro/ponor/systems/particles.py
 /home/laza/pro/ponor/systems/template_spawner.py
+/home/laza/pro/ponor/systems/template_items.py
 /home/laza/pro/ponor/systems/player_controller.py
 /home/laza/pro/ponor/systems/npc_controller.py
 /home/laza/pro/ponor/systems/item_controller.py
