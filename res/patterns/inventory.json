@@ -1,0 +1,12 @@
+{"component": 
+	"inventory", 
+	"fields": 
+	{
+		"items"	: [],
+		"hands"	: [],
+		"head" 	: [],
+		"chest" : [],
+		"legs"	: [],
+		"weight": 0
+	}
+}

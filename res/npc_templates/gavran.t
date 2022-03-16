@@ -9,7 +9,13 @@ rarity		=	70
 [position.json] 
 [drawable.json] 
 ascii_id	=	"RAVEN"
-[~movable.json]
+
+[inventory.json]
+[template_items.json]
+weapons		=	"mac.t"
+
+
+[movable.json]
 [health.json]
 max_health		=	60^150
 
