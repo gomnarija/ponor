@@ -98,11 +98,11 @@ class Template_Items(krcko.System):
 		#
 		for c in components:
 			#random values, tuple with min, max
-			for key in components.keys():
-				_field = components[key]
+			for index in range(0,len(c)):
+				_field = c[index]
 				if type(_field) is tuple:
 					_min, _max = _field
-					components[key] = self.random.randint(int(_min), int(_max))
+					c[index] = self.random.randint(int(_min), int(_max))
 
 
 		#create entity

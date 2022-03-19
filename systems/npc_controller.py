@@ -14,20 +14,70 @@ class NPCController(krcko.System):
 		#get current room rect
 		self.room_rect	= 	self.player_ent['player'].room_rect
 
+
 		#get current action
 		action = self.turn_machine.action
 		
 
 		#at the end of the turn
-		if krcko.ActionFlag.ENDING in action.flags:
+		if krcko.ActionFlag.ENDING in self.turn_machine.action.flags:
 			#
 			for npc_ent, npc_eid in self.scene.gen_entities("npc"):
-				#check for player interaction,	
-				self.player_interaction_detection(npc_eid)
+				#check if npc is interacting with player
+				if self.player_interaction_detection(npc_eid):
+					logging.debug("OVDE")
+					#if it's agressive
+					if npc_ent['npc'].agro > 50:
+						#attack player
+						self.attack_player(npc_eid)
+						
+
+		#agro up if attacked
+		# attack action detection
+		if self.turn_machine.action_name == "ATTACK":
+			#if attacker is player
+			if self.turn_machine.action.attacker_eid ==\
+				self.scene.get_eid_from_name("player"):
+				#and target is npc 
+				if self.scene.entity_has_component(self.turn_machine.action.target_eid, "npc"):
+					#get npc 
+					npc_ent = self.scene.get_entity(self.turn_machine.action.target_eid)
+					#set agro to 100, unless it's -1
+					if npc_ent['npc'].agro != -1:
+						npc_ent['npc'].agro = 100
+
+
+
+
+
 	
 
 	def cleanup(self):
 		pass
+
+
+					
+
+
+	def attack_player(self, npc_eid :int) -> None:
+		'''sends ATTTACK action with a given npc attacking player'''
+		
+		#NON ENDING ATTACK
+
+		#ent given must be npc
+		if not self.scene.entity_has_component(npc_eid, "npc"):
+			logging.error("failed to get npc entity.")
+			return
+
+
+		#get player eid 
+		player_eid :int		=	self.scene.get_eid_from_name("player")
+		attack_action		=	krcko.create_action("ATTACK",[],\
+								['attacker_eid', 'target_eid'],\
+									[npc_eid, player_eid])	
+	
+		#insert action	
+		self.turn_machine.insert_action(attack_action)	
 
 
 
@@ -84,7 +134,7 @@ class NPCController(krcko.System):
 		npc_ent	= self.scene.get_entity(npc_eid)
 		if "npc" not in npc_ent.keys():
 			logging.error("failed to get npc entity")
-			return
+			return False
 		
 
 		#player
@@ -100,21 +150,24 @@ class NPCController(krcko.System):
 
 		#if it's already interacting 
 		# check if player is still inside radius
-		# dont't interact again
+		#  dont't interact again
 		if npc_ent['npc'].is_interacting == True:
 			#check radius
 			if pp.distance(np) >= 2:
 				#not interacting anymore
 				npc_ent['npc'].is_interacting = False
+				return False
 			#don't interact again
-			return
+			return True
 
 
 		#check distance
 		if pp.distance(np) < 2:
 			#is interacting
 			npc_ent['npc'].is_interacting = True
-			self.player_interaction(npc_eid)
+			#agro down
+			if npc_ent['npc'].agro < 50:
+				self.player_interaction(npc_eid)
 			return True
 
 		return False

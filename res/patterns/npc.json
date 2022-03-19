@@ -3,6 +3,7 @@
 	"fields": 
 	{
 		"class_name": "",
+		"agro"	: 0,
 		"is_interacting" : false 
 	}
 }
