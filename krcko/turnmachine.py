@@ -43,8 +43,8 @@ class TurnMachine:
 
 	def __init__(self) -> None:
 		
-		self.m_turn 		:List[recordclass] 	= [self.empty_action]
-		self.m_next_turn 	:List[recordclass] 	= []
+		self.m_turn 		:List[recordclass] 	= [self.start_action]
+		self.m_next_turn 	:List[recordclass] 	= [self.start_action]
 		self.m_turn_number	:int		   	= 0
 		self.m_halted		:bool			= False
 
@@ -52,7 +52,13 @@ class TurnMachine:
 	@property
 	def empty_action(self) -> recordclass:
 		'''returned when there are no actions in a current turn.'''
-		return create_action("EMPTY", [ActionFlag.EMPTY], [], [])
+		return create_action("EMPTY_ACTION", [ActionFlag.EMPTY], [], [])
+
+
+	@property
+	def start_action(self) -> recordclass:
+		'''returned at the start of the turn, empty'''
+		return create_action("START_ACTION", [ActionFlag.EMPTY], [], [])
 
 	@property
 	def ending_action(self) -> recordclass:
@@ -181,7 +187,7 @@ class TurnMachine:
 		
 		self.m_turn_number	+= 1
 		self.m_turn 		= self.m_next_turn
-		self.m_next_turn 	= [] 
+		self.m_next_turn 	= [self.start_action] 
 		
 
 
