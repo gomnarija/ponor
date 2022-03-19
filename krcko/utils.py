@@ -3,6 +3,7 @@ import os
 import sys
 import traceback
 import random
+import logging
 
 def gen_files(dir: str) -> Iterator[str]:
         '''
@@ -31,16 +32,15 @@ def execute(cmd :str, globals=None, locals = None, description='krcko'):
 		error_class = err.__class__.__name__
 		detail = err.args[0]
 		line_number = err.lineno
-		logging.error("Execute failed at " + str(line_number) + " with " + detail)
 	except Exception as err:
 		error_class = err.__class__.__name__
 		detail = err.args[0]
 		cl, exc, tb = sys.exc_info()
 		line_number = traceback.extract_tb(tb)[-1][1]
-		logging.error("Execute failed at " + str(line_number) + " with " + detail)
 	else:
+		#all good
 		return
-	raise InterpreterError("%s at line %d of %s: %s" % (error_class, line_number, description, detail))
+	raise Exception("%s at line %d of %s: %s" % (error_class, line_number, description, detail))
 
 
 
