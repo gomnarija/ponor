@@ -95,6 +95,16 @@ class Template_Items(krcko.System):
 		components :List[Any] = krcko.load_template(defs.ITM_DIR_PATH + item_template)
 
 
+		#
+		for c in components:
+			#random values, tuple with min, max
+			for key in components.keys():
+				_field = components[key]
+				if type(_field) is tuple:
+					_min, _max = _field
+					components[key] = self.random.randint(int(_min), int(_max))
+
+
 		#create entity
 		item_eid :int = self.scene.add_entity(*components, ent_name = "ITEM_TEMPLATE: " + item_template)			
 		#remove drawable component 
