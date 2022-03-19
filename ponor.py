@@ -21,8 +21,8 @@ logging.basicConfig(filename='logs'+os.sep+'ponor.log',
 
 
 ponor = krcko.Game("ponor")
-intro = krcko.load_scene("/home/laza/pro/ponor/scenes/intro.scene","intro")
-scena = krcko.load_scene("/home/laza/pro/ponor/scenes/test_scene.scene","scena")
+intro = krcko.load_scene("scenes/intro.scene","intro")
+scena = krcko.load_scene("scenes/test_scene.scene","scena")
 ponor.add_scene(intro)
 ponor.add_scene(scena)
 
