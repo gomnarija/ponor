@@ -13,9 +13,10 @@ from typing import Tuple,Optional,Union,Callable,List,Any
 #needed for ACS
 curses.initscr()
 
-AC_BULLET = curses.ACS_BULLET
-AC_DIAMOND = curses.ACS_DIAMOND
-AC_CKBOARD = curses.ACS_CKBOARD
+AC_BULLET 	= curses.ACS_BULLET
+AC_DIAMOND 	= curses.ACS_DIAMOND
+AC_CKBOARD 	= curses.ACS_CKBOARD
+AC_BLOCK 	= curses.ACS_BLOCK
 
 
 #color stuff :) 
@@ -119,6 +120,14 @@ def draw_text(win :curses.window,text: str, y :int=-1,x :int=-1) -> None:
 		   optional:
 			y,x
 	'''
+
+	#if a list of characters is given,
+	# call draw each of them separately
+	if type(text) is list:
+		draw_chars(win, text, y, x)
+		return
+
+
 	try:	
 		if x == -1:
 			y,x = get_cursor_position(win)
@@ -127,11 +136,33 @@ def draw_text(win :curses.window,text: str, y :int=-1,x :int=-1) -> None:
 		logging.error(e)
 		pass
 
+def draw_chars(win :curses.window, chs: List[Union[str,bytes,int]], y :int=-1,x :int=-1) -> None:
+	'''
+		Draw list of characters.
+		params:
+			win,chs
+		optional:
+			y, x
+	'''
+
+	if x == -1:
+		y,x = get_cursor_position(win)	
+
+	ch :Union[str, bytes, int]
+	for ch in chs:
+		draw_char(win, ch, y, x)
+		x += 1
+		
+
+	
+
+
+
 def draw_char(win :curses.window,ch: Union[str,bytes,int], y :int=-1,x :int=-1) -> None:
 	'''
-		Draw character on the given window.
+		Draw the character.
 		params:
-			win,text
+			win,ch
 		   optional:
 			y,x
 	'''
@@ -141,7 +172,6 @@ def draw_char(win :curses.window,ch: Union[str,bytes,int], y :int=-1,x :int=-1) 
 		win.addch(y,x,ch)
 	except Exception as e:
 		logging.error(e)
-		logging.debug(y)
 		pass
 
 
