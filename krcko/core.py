@@ -167,7 +167,9 @@ class Game:
 				'HALLWAY_FLOOR'	:	4194401,
 				'RAVEN'		:	71,
 				'MONEY'		:	42,
-				'SWORD'		:	33
+				'SWORD'		:	33,
+				'BAR_FULL'	:	4194352,
+				'BAR_EMPTY'	:	34
 			}
 
 
