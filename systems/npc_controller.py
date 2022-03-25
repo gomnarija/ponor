@@ -25,7 +25,6 @@ class NPCController(krcko.System):
 			for npc_ent, npc_eid in self.scene.gen_entities("npc"):
 				#check if npc is interacting with player
 				if self.player_interaction_detection(npc_eid):
-					logging.debug("OVDE")
 					#if it's agressive
 					if npc_ent['npc'].agro > 50:
 						#attack player

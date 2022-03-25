@@ -9,7 +9,7 @@ class Momo():
 
 	def __init__(self):
 	
-		self.m_magic 		:str = '[\s]*(>{1,2}|"(?:\\.|[^\\"])*"?|\[[\w:\d,-^]*\]|[a-zA-Z:, ]+|\+)'
+		self.m_magic 		:str = '[\s]*(>{1,2}|"(?:\\.|[^\\"])*"?|\[[\w:\d,-^]*\]|[a-zA-Z:_, ]+|\+)'
 		self.m_input		:str = ""
 	
 
@@ -119,7 +119,7 @@ class Momo():
 		#field name
 		field_name = token_split[0]
 		#must be all letters
-		if not field_name.isalpha():
+		if not field_name.replace("_","").isalpha():
 			logging.error("Wrong field syntax")
 			return None, None
 
