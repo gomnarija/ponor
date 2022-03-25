@@ -9,7 +9,7 @@ class Momo():
 
 	def __init__(self):
 	
-		self.m_magic 		:str = '[\s]*(>{1,2}|"(?:\\.|[^\\"])*"?|\[[\w:\d,-^]*\]|[a-zA-Z:_, ]+|\+)'
+		self.m_magic 		:str = '[\s]*(#|>{1,2}|"(?:\\.|[^\\"])*"?|\[[\w:\d,-^]*\]|[a-zA-Z:_, ]+|\+)'
 		self.m_input		:str = ""
 	
 
@@ -152,7 +152,7 @@ class Momo():
 		condition :str = ""
 		
 		token :str
-		c :bool = False
+		is_condition :bool 	= False
 		for token in tokens:
 		#string literal
 			if token[0] == '"' and token[-1] == '"':
@@ -163,18 +163,17 @@ class Momo():
 				#remove white space
 				token = token.replace(" ", "")
 
-
 			#decor :)
 			if token == "+":
 				continue	
-			
+	
 			#condition
 			if token == ":":
 				#next token is condition string
-				c = True	
+				is_condition = True	
 				continue
 			#get condition and break
-			if c:
+			if is_condition:
 				condition = token
 				break	
 			#variable
@@ -198,19 +197,22 @@ class Momo():
 		
 	
 		#parse tokens
-		index 	:int	=	0
-		curr_field :str =	"DEFAULT"
-		line :List[str]	=	[]
+		index 	:int		=	0
+		curr_field :str 	=	"DEFAULT"
+		line :List[str]		=	[]
+		is_comment :bool	=	False
 		while index < len(tokens):
 			#
 			token :str	=	tokens[index]
-			#EOF
-			if index == len(tokens)-1:
+			#EOF and not a comment
+			if index == len(tokens)-1 and not is_comment:
 				#add current token
 				line.append(token)
 				
-			#> or >> or EOF
-			if token[0] == ">" or index == len(tokens)-1:
+			#> or >> or (EOF and not a comment)
+			if token[0] == ">" or (index == len(tokens)-1 and not is_comment):
+				#not a comment 
+				is_comment = False
 				#current field must be in fields
 				if not curr_field in fields and len(fields) > 0:
 					#empty line 
@@ -267,8 +269,11 @@ class Momo():
 							dependencies.append(dep)
 
 
+			#start of the comment
+			elif token[0] == "#":
+				is_comment = True
 
-			else:		
+			elif not is_comment:		
 				#fill line
 				line.append(token)
 		
