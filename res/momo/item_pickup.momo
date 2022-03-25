@@ -9,3 +9,19 @@
 >"dodato u prtljag."
 >"ubacio si " + name + " u prtljag."
 >"pokupio si " + name + "."
+
+
+
+>>OPTION_CONTINUE
+>"ostavi"
+>"zanemari"
+>"nista ipak"
+>"neka ga"
+>"nastavi"
+
+
+>>OPTION_PICKUP
+>"pokupi"
+>"uzmi"
+>"podigni"
+

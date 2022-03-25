@@ -8,7 +8,6 @@ class ItemController(krcko.System):
 		self.pickup_momo = krcko.Momo()
 		self.pickup_momo.load(defs.MOM_DIR_PATH + "item_pickup.momo")
 
-		
 		self.item_setup()
 
 	def update(self):
@@ -91,7 +90,7 @@ class ItemController(krcko.System):
 		#pickup form text
 		#plu - plurality, 1 sing, 2 mult
 		self.pickup_momo.add_arguments({'name' : name,'amount' : amount,  'plu' : (1 if amount == 1 else 2)})
-		self.pickup_momo.run(fields=["DETECT"])
+		self.pickup_momo.run(fields=["DETECT","OPTION_CONTINUE", "OPTION_PICKUP"])
 
 
 
@@ -100,15 +99,20 @@ class ItemController(krcko.System):
 		
 		#control keys
 		controls 		= self.game.controls
-		
 		continue_key :str	= controls['MOMO']['CONTINUE']
 		pickup_key :str		= controls['MOMO']['PICKUP']
+
+		
+		#option texts
+		continue_option_text :str	= self.pickup_momo.pick('OPTION_CONTINUE') 
+		pickup_option_text :str		= self.pickup_momo.pick('OPTION_PICKUP') 
+
 
 		#momo form
 		momo_action		= krcko.create_action("MOMO",\
 						[krcko.ActionFlag.HALTING, krcko.ActionFlag.INSERTING],\
 						['text','actions','action_names','action_keys'],\
-						[form_text, [pickup_action, continue_action], ["pokupi", "ostavi"], [pickup_key, continue_key]])
+						[form_text, [pickup_action, continue_action], [pickup_option_text, continue_option_text], [pickup_key, continue_key]])
 
 
 		#insert 
