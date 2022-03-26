@@ -129,41 +129,42 @@ class Weapons(krcko.System):
 			logging.error("failed to get weapon entity.")
 			return
 
-
-		#continue
-		continue_action		=	krcko.create_action("CONTINUE", [], [], [])
-		continue_text :str	=	"dobro"
-		continue_key :str	=	self.game.controls['MOMO']['CONTINUE']
-
-
-
-		#equip this weapon
-		equip_action		=	krcko.create_action("EQUIP_ITEM", [krcko.ActionFlag.ENDING],\
-										['item_eid','equip_type'],
-											[item_eid, 'hands'])
-		equip_text :str		=	"uzmi u ruke"
-		equip_key :str		=	self.game.controls['MOMO']['EQUIP']
-
 		#weapon stats
 		damage		:int	=	item_ent['weapon'].damage	
 		durability	:int	=	item_ent['weapon'].durability
 		crt_chance	:int	=	item_ent['weapon'].critical_strike_chance
-	
-		#form text
+
+
 		#momo
 		self.inspect_momo.add_arguments({'name' : item_ent['item'].name,\
 								'damage' : damage,
 									'durability' : durability,
 										'crt' : crt_chance})
+		#
+		self.inspect_momo.run(fields = ["WEAPONS", "OPTION_CONTINUE", "OPTION_EQUIP_WEAPON"])
 
 
-		#run momo
-		self.inspect_momo.run(fields = ["WEAPONS"])
+		#continue option
+		continue_action			=	krcko.create_action("CONTINUE", [], [], [])
+		continue_option_text :str	=	self.inspect_momo.pick("OPTION_CONTINUE")
+		continue_key :str		=	self.game.controls['MOMO']['CONTINUE']
+
+
+
+		#equip option 
+		equip_action		=	krcko.create_action("EQUIP_ITEM", [krcko.ActionFlag.ENDING],\
+										['item_eid','equip_type'],
+											[item_eid, 'hands'])
+		#
+		equip_option_text :str		=	self.inspect_momo.pick("OPTION_EQUIP_WEAPON")
+		equip_key :str			=	self.game.controls['MOMO']['EQUIP']
+	
+		#momo form text
 		info_text :str		=	self.inspect_momo.pick("WEAPONS")
 
 		#momo form
 		momo_action		=	krcko.momo_action(info_text, [equip_action, continue_action],\
-										 [equip_text, continue_text],\
+										 [equip_option_text, continue_option_text],\
 											 [equip_key, continue_key])
 		#insert
 		self.turn_machine.insert_action(momo_action)

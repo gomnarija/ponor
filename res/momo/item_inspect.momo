@@ -1,9 +1,30 @@
+#Default case, 
+# if item type not specified.
+#
 >>DEFAULT : name, amount, weight
 >"imas " + name + " [ " + amount + " ]" +  ". ukupna tezina je " + weight + "." 
 >name + " komada [ " + amount + " ]" +  ". tezina iznosi " + weight + "." 
 
-
+#Weapon item type.
+#
+#
 >>WEAPONS : name, damage, durability, crt
 >name + " sa udarnom moci " + damage + " i sansom za kritican udarac od " + crt
 + " posto. preostalih udaraca " + durability + "."
 
+
+#Continue option text.
+#
+#
+>>OPTION_CONTINUE
+>"dobro"
+>"jasno"
+>"razumeo"
+>"shvatam"
+
+#Equip item of 
+# type weapon.
+#
+>>OPTION_EQUIP_WEAPON
+>"uzmi u ruke"
+>"stavi u ruke"

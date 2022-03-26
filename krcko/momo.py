@@ -209,10 +209,11 @@ class Momo():
 				#add current token
 				line.append(token)
 				
-			#> or >> or (EOF and not a comment)
-			if token[0] == ">" or (index == len(tokens)-1 and not is_comment):
-				#not a comment 
-				is_comment = False
+			#> or >> or EOF
+			if token[0] == ">" or index == len(tokens)-1:
+				#not a comment
+				if token[0] != "#": 
+					is_comment = False
 				#current field must be in fields
 				if not curr_field in fields and len(fields) > 0:
 					#empty line 
@@ -268,6 +269,10 @@ class Momo():
 						if dep not in dependencies:
 							dependencies.append(dep)
 
+
+				#>
+				if token == ">":
+					pass
 
 			#start of the comment
 			elif token[0] == "#":
@@ -327,6 +332,7 @@ class Momo():
 		'''pick a random text from field'''
 		#field not avaliable
 		if field not in self.m_avaliable.keys():
+			logging.warning("MOMO: field: " + field + " not loaded.")
 			return ""
 
 		return random.choice(self.m_avaliable[field])

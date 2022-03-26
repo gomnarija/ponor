@@ -198,23 +198,27 @@ class InventoryView(krcko.System):
 			return		
 
 
-
-		#continue
-		continue_action		=	krcko.create_action("CONTINUE", [], [], [])
-		continue_text :str	=	"dobro"
-		continue_key :str	=	self.game.controls['MOMO']['CONTINUE']
-
-
 		#momo
 		self.inspect_momo.add_arguments({'name' : item_ent['item'].name,\
 							'amount' : amount,\
 								'weight' : item_ent['item'].weight * amount})
-		#run momo
-		self.inspect_momo.run(fields=["DEFAULT"])
+		#
+		self.inspect_momo.run(fields=["DEFAULT", "OPTION_CONTINUE"])
+
+
+		#continue option
+		continue_action			=	krcko.create_action("CONTINUE", [], [], [])
+		continue_option_text :str	=	self.inspect_momo.pick("OPTION_CONTINUE")
+		continue_key :str		=	self.game.controls['MOMO']['CONTINUE']
+
+
+		
+		#momo form text
 		info_text :str		=	self.inspect_momo.pick("DEFAULT")	
 
+
 		#momo form
-		momo_action		=	krcko.momo_action(info_text, [continue_action], [continue_text], [continue_key])
+		momo_action		=	krcko.momo_action(info_text, [continue_action], [continue_option_text], [continue_key])
 		#insert
 		self.turn_machine.insert_action(momo_action)
 	
