@@ -11,10 +11,16 @@ class InventoryView(krcko.System):
 		#get player ent
 		self.player_ent = self.scene.get_entity_from_name("player")
 
-
+		#
 		self.inspect_momo = krcko.Momo()
 		self.inspect_momo.load(defs.MOM_DIR_PATH + "item_inspect.momo")
 
+
+		#ui stuff
+		self.inventory_momo = krcko.Momo()
+		self.inventory_momo.load(defs.MOM_DIR_PATH + "inventory_view.momo")
+		self.inventory_momo.run()
+	
 
 	_started :bool = False#wait for start action	
 	def update(self):
@@ -36,8 +42,9 @@ class InventoryView(krcko.System):
 					br = krcko.AC_DIAMOND)
 
 
-		#
-		self.draw_middle_text("[ prtljag ]", 0)
+		#draw title 
+		title_text :str = "[ " + self.inventory_momo.pick("TITLE") + " ]"
+		self.draw_middle_text(title_text, 0)
 		#
 		self.draw_weight()
 		#get equiped items
@@ -81,20 +88,37 @@ class InventoryView(krcko.System):
 	def draw_equipped(self) -> None:
 		'''display equipped items'''
 	
+		#drawn bellow items
 
-		#TODO: check for out of bounds y 
-	
-		#bellow items
+		
 		starting_y :int = self.last_item_y + 1
-
 		curr_y :int	=	starting_y
-		#draw equipped text
-		self.draw_middle_text("-[ upotrebljeni ]-", curr_y)
-		curr_y += 2
 
+		
+		#equipped title text
+		equipped_title :str = "[ " + self.inventory_momo.pick("EQUIPPED_TITLE") + " ]"
+
+
+		#draw separator line
+		krcko.draw_hline(self.view,krcko.AC_HLINE, self.view_rect.width, curr_y, 0)		
+		krcko.draw_char(self.view,krcko.AC_LTEE,curr_y, 0)
+		krcko.draw_char(self.view,krcko.AC_RTEE,curr_y, self.view_rect.width-1)
+
+		#draw equipped title text
+		self.draw_middle_text(equipped_title, curr_y)
+	
+
+
+		curr_y += 2
 		#draw equipped 
 		# EQUIP_TYPE) ITEM NAME 
 		for equip_type in self.equipped.keys():
+
+			#out of bounds y
+			if curr_y >= self.view_rect.bottom - self.weight_y_bottom:
+				#TODO:scrolling ? 
+				break
+
 			#get item
 			item_eid :int = self.equipped[equip_type]
 			if not self.scene.entity_has_component(item_eid, "item"):
@@ -227,22 +251,22 @@ class InventoryView(krcko.System):
 	def inspect_item(self, item_index :int) -> None:
 		'''momo form with item info'''
 		
-		#novcic komada 10, ukupna tezina je 13
-		
+		#momo
+		self.inspect_momo.add_arguments({'index' : item_index})
+		self.inspect_momo.run(fields=["OPTION_CONTINUE","EMPTY"])
+
 
 		#check
 		if not item_index in self.item_ids.keys():
 			#no item with that index
-			# show momo error		
-			continue_action	 	= krcko.create_action("CONTINUE", [], [], [])
-			continue_text :str 	= "nista"
-			continue_key :str	= self.game.controls['MOMO']['CONTINUE']
+			# show momo form with error		
+			continue_action	 		= krcko.create_action("CONTINUE", [], [], [])
+			continue_option_text :str 	= self.inspect_momo.pick("OPTION_CONTINUE")
+			continue_key :str		= self.game.controls['MOMO']['CONTINUE']
 
-			error_text :str = "mesto " + str(item_index) + " u prtljagu je prazno."
+			error_text :str = self.inspect_momo.pick("EMPTY") 
+			momo_action	= krcko.momo_action(error_text, [continue_action], [continue_option_text], [continue_key])
 
-			momo_action	= krcko.create_action("MOMO",[krcko.ActionFlag.HALTING, krcko.ActionFlag.INSERTING],\
-							['text','actions','action_names','action_keys'],\
-							[error_text, [continue_action], ['jasno'], [continue_key]])
 			#insert
 			self.turn_machine.insert_action(momo_action)
 			return	
@@ -349,7 +373,10 @@ class InventoryView(krcko.System):
 
 		weight :int = self.player_ent['inventory'].weight
 
-		krcko.draw_text(self.view, "tezina:", self.view_rect.height  - self.weight_y_bottom, 2)
+
+		weight_text :str = self.inventory_momo.pick("WEIGHT") + ":"
+
+		krcko.draw_text(self.view, weight_text, self.view_rect.height  - self.weight_y_bottom, 2)
 		self.draw_middle_text("[ " + str(weight) + " ]", self.view_rect.height - self.weight_y_bottom + 1) 
 
 

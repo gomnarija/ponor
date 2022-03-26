@@ -17,7 +17,10 @@ AC_BULLET 	= curses.ACS_BULLET
 AC_DIAMOND 	= curses.ACS_DIAMOND
 AC_CKBOARD 	= curses.ACS_CKBOARD
 AC_BLOCK 	= curses.ACS_BLOCK
-
+AC_HLINE	= curses.ACS_HLINE
+AC_VLINE	= curses.ACS_VLINE
+AC_RTEE		= curses.ACS_RTEE
+AC_LTEE		= curses.ACS_LTEE
 
 #color stuff :) 
 # color isn't used at the moment

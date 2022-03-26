@@ -12,6 +12,13 @@
 >name + " sa udarnom moci " + damage + " i sansom za kritican udarac od " + crt
 + " posto. preostalih udaraca " + durability + "."
 
+#Error text,
+# when trying to inspect empty
+#  inventory place.
+>>EMPTY : index
+>"na mestu broj " + index + " nema nista."
+>"mesto broj " + index + " je prazno."
+
 
 #Continue option text.
 #
