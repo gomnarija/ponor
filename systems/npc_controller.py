@@ -8,6 +8,16 @@ class NPCController(krcko.System):
 		#get player
 		self.player_ent = self.scene.get_entity_from_name("player")
 
+		#momo
+		self.interaction_momo = krcko.Momo()
+		self.interaction_momo.load(defs.MOM_DIR_PATH + "npc_interaction.momo")
+
+		#
+		for npc_ent, npc_eid in self.scene.gen_entities("npc"):
+			#set name from template
+			if self.scene.entity_has_component(npc_eid, "template"):
+				npc_ent['npc'].name = npc_ent['template'].name
+
 
 	def update(self):
 		
@@ -95,29 +105,35 @@ class NPCController(krcko.System):
 			return
 		
 
+
+		#momo
+		self.interaction_momo.add_arguments({'name' : npc_ent['npc'].name})
+		self.interaction_momo.run(fields=["OPTION_CONTINUE","OPTION_ATTACK", "DEFAULT"])
+
+
 		#don't do anything
-		continue_action		=	krcko.create_action("CONTINUE", [], [], [])#
-		continue_key :str	=	self.game.controls['MOMO']['CONTINUE']
-		continue_text :str	=	"nastavi"
+		continue_action			=	krcko.create_action("CONTINUE", [], [], [])#
+		continue_key :str		=	self.game.controls['MOMO']['CONTINUE']
+		continue_option_text :str	=	self.interaction_momo.pick("OPTION_CONTINUE")
 
 
 		#attack npc
 		# send out action with attacker and targer eids 
-		player_eid :int		=	self.scene.get_eid_from_name("player")
-		attack_action		=	krcko.create_action("ATTACK",[krcko.ActionFlag.ENDING],\
+		player_eid :int			=	self.scene.get_eid_from_name("player")
+		attack_action			=	krcko.create_action("ATTACK",[krcko.ActionFlag.ENDING],\
 								['attacker_eid', 'target_eid'],\
 									[player_eid, npc_eid])	
 	
-		attack_key :str		=	self.game.controls['MOMO']['ATTACK']
-		attack_text :str	=	"napadni"
+		attack_key :str			=	self.game.controls['MOMO']['ATTACK']
+		attack_option_text :str		=	self.interaction_momo.pick("OPTION_ATTACK")
 
 
-		#
-		text :str		=	"bla bla"
+		#momo form text
+		text :str			=	self.interaction_momo.pick("DEFAULT")
 
 
 		#create momo action
-		momo_action		=	krcko.momo_action(text, [continue_action, attack_action], [continue_text, attack_text], [continue_key, attack_key])
+		momo_action			=	krcko.momo_action(text, [continue_action, attack_action], [continue_option_text, attack_option_text], [continue_key, attack_key])
 
 	
 		#insert momo action

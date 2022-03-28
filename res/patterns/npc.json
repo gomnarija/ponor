@@ -3,6 +3,7 @@
 	"fields": 
 	{
 		"class_name": "",
+		"name" : "NPC",
 		"agro"	: 0,
 		"is_interacting" : false 
 	}

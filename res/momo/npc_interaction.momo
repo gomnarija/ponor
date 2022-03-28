@@ -1,0 +1,21 @@
+#Default interaction case 
+#
+#
+>>DEFAULT : name
+>"ispred tebe je " + name + "."
+
+
+
+#Continue option text.
+#
+#
+>>OPTION_CONTINUE
+>"nastavi"
+>"zanemari"
+>"produzi"
+
+#Attack option text
+#
+#
+>>OPTION_ATTACK
+>"napadni"
