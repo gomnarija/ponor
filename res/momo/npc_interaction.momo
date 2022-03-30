@@ -4,6 +4,9 @@
 >>DEFAULT : name
 >"ispred tebe je " + name + "."
 
+#Default aggressive interaction case
+>>DEFAULT_AGRO : name
+>"ispred tebe je " + name + ", izgleda besno."
 
 
 #Continue option text.

@@ -66,6 +66,54 @@ class NPCController(krcko.System):
 
 
 					
+	def player_attack_interaction(self, npc_eid :int) -> None:
+		'''Instead of interacting with an agressive npc, 
+			send this out, has an option for attack back'''
+
+	
+		npc_ent		=	self.scene.get_entity(npc_eid)
+
+		if "npc" not in npc_ent.keys():
+			logging.error("failed to get npc entity")	
+			return
+		
+
+
+		#momo
+		self.interaction_momo.add_arguments({'name' : npc_ent['npc'].name})
+		self.interaction_momo.run(fields=["OPTION_CONTINUE","OPTION_ATTACK", "DEFAULT_AGRO"])
+
+
+		#don't do anything
+		continue_action			=	krcko.create_action("CONTINUE", [], [], [])#
+		continue_key :str		=	self.game.controls['MOMO']['CONTINUE']
+		continue_option_text :str	=	self.interaction_momo.pick("OPTION_CONTINUE")
+
+
+		#attack npc
+		# send out action with attacker and targer eids 
+		player_eid :int			=	self.scene.get_eid_from_name("player")
+		attack_action			=	krcko.create_action("ATTACK",[krcko.ActionFlag.ENDING],\
+								['attacker_eid', 'target_eid'],\
+									[player_eid, npc_eid])	
+	
+		attack_key :str			=	self.game.controls['MOMO']['ATTACK']
+		attack_option_text :str		=	self.interaction_momo.pick("OPTION_ATTACK")
+
+
+		#momo form text
+		text :str			=	self.interaction_momo.pick("DEFAULT_AGRO")
+
+
+		#create momo action
+		momo_action			=	krcko.momo_action(text, [continue_action, attack_action], [continue_option_text, attack_option_text], [continue_key, attack_key])
+
+	
+		#insert momo action
+		self.turn_machine.insert_action(momo_action)	
+
+
+
 
 
 	def attack_player(self, npc_eid :int) -> None:
@@ -183,6 +231,9 @@ class NPCController(krcko.System):
 			#agro down
 			if npc_ent['npc'].agro < 50:
 				self.player_interaction(npc_eid)
+			#agro up
+			else:
+				self.player_attack_interaction(npc_eid)
 			return True
 
 		return False

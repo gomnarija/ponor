@@ -1,0 +1,48 @@
+#Form text fro when
+# player is attacking with weapon.
+#
+>>PLAYER_ATTACKING : name, damage
+>"udaras i skidas "+ damage + " zivotna poena."
+
+
+#Form text for when
+# player is attacked by weapon.
+#
+>>PLAYER_TARGET : name, damage
+>name + " te udara i nanosi ti " + damage + " poena stete."
+
+
+#Trying to attack, without any
+# weapons equipped.
+#
+>>PLAYER_EMPTY
+>"nemas sa cim da napadnes"
+>"pokusavas da napadnes bez upotrebljenog oruzja, nista se ne desava."
+
+#Continue option text
+#
+#
+>>OPTION_CONTINUE
+>"jasno"
+>"dobro"
+>"razumem"
+
+#Run from the fight option text.
+#
+#
+>>OPTION_RUN
+>"odustani"
+>"bezi"
+>"povuci se"
+
+#Attack back option text.
+#
+#
+>>OPTION_ATTACK_BACK
+>"uzvrati"
+
+#Continue attacking option text.
+#
+#
+>>OPTION_ATTACK
+>"napadni"

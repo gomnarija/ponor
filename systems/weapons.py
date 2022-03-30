@@ -85,8 +85,33 @@ class Weapons(krcko.System):
 
 
 	def player_empty_attack(self) -> None:
-		'''player trying to attack someone with no weapon equipped'''
-		pass
+		'''player trying to attack someone with no weapon equipped,
+			sends out momo form'''
+
+
+		#run momo
+		self.attack_momo.run(fields = ["OPTION_CONTINUE",\
+						 "PLAYER_EMPTY"])
+
+
+
+		#continue
+		continue_action			=	krcko.create_action("CONTINUE", [], [], [])
+		continue_key			=	self.game.controls["MOMO"]["CONTINUE"]
+		continue_option_text		=	self.attack_momo.pick("OPTION_CONTINUE")
+
+
+		#momo form text
+		text :str			=	self.attack_momo.pick("PLAYER_EMPTY")
+
+		#momo action
+		momo_action			=	krcko.momo_action(text, [continue_action], [continue_option_text], [continue_key])
+
+
+		#insert
+		self.turn_machine.insert_action(momo_action)	
+
+
 
 
 	def player_attack(self, target_eid :int) -> None:
@@ -130,7 +155,7 @@ class Weapons(krcko.System):
 
 		#run momo
 		self.attack_momo.add_arguments({'name' : npc_name, 'damage' : damage})
-		self.attack_momo.run(fields = ["OPTION_CONTINUE",\
+		self.attack_momo.run(fields = ["OPTION_RUN",\
 						 "OPTION_ATTACK",\
 							"PLAYER_ATTACKING"])
 
@@ -147,7 +172,7 @@ class Weapons(krcko.System):
 		#continue
 		continue_action			=	krcko.create_action("CONTINUE", [], [], [])
 		continue_key			=	self.game.controls["MOMO"]["CONTINUE"]
-		continue_option_text		=	self.attack_momo.pick("OPTION_CONTINUE")
+		continue_option_text		=	self.attack_momo.pick("OPTION_RUN")
 
 
 		#momo form text
