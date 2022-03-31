@@ -6,14 +6,14 @@ class Template_Items(krcko.System):
 
 	def setup(self):	
 		
-	
 		for ent, eid in self.scene.gen_entities("template_items"):
 			#entity with template items must have inventory component
 			if not self.scene.entity_has_component(eid, "inventory"):
 				#
 				self.scene.remove_component(eid, "template_items")
 				continue		
-		
+	
+
 			#get the component		
 			tmp_items	=	ent["template_items"]
 
@@ -23,7 +23,6 @@ class Template_Items(krcko.System):
 			#weapons
 			self.parse(eid, tmp_items.weapons, self.init_weapon)
 					
-
 
 
 	def update(self):
@@ -123,7 +122,6 @@ class Template_Items(krcko.System):
 	def init_weapon(self, eid :int, item_template :str) -> None:
 		'''equip a given weapon to a given carrier'''
  
-
 		#init weapon	
 		weapon_eid :int = self.init_item(eid, item_template)
 	

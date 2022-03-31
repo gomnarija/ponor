@@ -15,3 +15,5 @@ ascii_id	=	"SWORD"
 damage			=	1^3
 durability		=	10^15
 critical_strike_chance	=	5^20
+attacking_momo_field	=	"SWORD_ATTACKING"
+target_momo_field	=	"SWORD_TARGET"

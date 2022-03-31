@@ -47,9 +47,9 @@ class Weapons(krcko.System):
 
 	
 
-	def get_equipped_weapon_damage(self, eid :int) -> tuple[bool, int]:
+	def get_equipped_weapon_damage(self, eid :int) -> tuple[bool, tuple[int, int]]:
 		'''check if entity has a weapon equipped in inventory
-			return is_equipped, total damage'''
+			return (is_equipped, (weapon_eid, total damage))'''
 		
 
 		#must have inventory component
@@ -62,8 +62,12 @@ class Weapons(krcko.System):
 	
 		has_weapon :bool = False
 		damage :int = 0
-		eq_eid :int
-		for eq_eid in ent['inventory'].hands:
+		eq_eid :int = 0
+
+		
+		#has an item equipped
+		if len(ent['inventory'].hands) == 1:
+			eq_eid = ent['inventory'].hands[0]
 			#must be item, weapon
 			if self.scene.entity_has_component(eq_eid, "item") and\
 				self.scene.entity_has_component(eq_eid, "weapon"):
@@ -78,9 +82,12 @@ class Weapons(krcko.System):
 				crt_chance :int  = weapon_ent['weapon'].critical_strike_chance
 				#try crit, else base 
 				damage += base_damage * 2 if krcko.dice_roll(crt_chance) else base_damage
+		#doesn't 
+		else:
+			pass
 
 
-		return has_weapon, damage	
+		return has_weapon, (eq_eid, damage)	
 
 
 
@@ -91,7 +98,7 @@ class Weapons(krcko.System):
 
 		#run momo
 		self.attack_momo.run(fields = ["OPTION_CONTINUE",\
-						 "PLAYER_EMPTY"])
+						 "EMPTY"])
 
 
 
@@ -102,7 +109,7 @@ class Weapons(krcko.System):
 
 
 		#momo form text
-		text :str			=	self.attack_momo.pick("PLAYER_EMPTY")
+		text :str			=	self.attack_momo.pick("EMPTY")
 
 		#momo action
 		momo_action			=	krcko.momo_action(text, [continue_action], [continue_option_text], [continue_key])
@@ -129,13 +136,14 @@ class Weapons(krcko.System):
 		target_ent	=	self.scene.get_entity(target_eid)
 		#get player entity, eid
 		player_ent	=	self.scene.get_entity_from_name("player")
-		player_eid	=	self.scene.get_eid_from_name("player")
+		player_eid :int	=	self.scene.get_eid_from_name("player")
 
 		#check if player has a weapon in hand
 		# and count total damage
 		has_weapon :bool
+		weapon_eid :int
 		damage	:int
-		has_weapon, damage = self.get_equipped_weapon_damage(player_eid)	
+		has_weapon, (weapon_eid, damage) = self.get_equipped_weapon_damage(player_eid)	
 
 		#no weapon equipped
 		if not has_weapon:
@@ -150,14 +158,37 @@ class Weapons(krcko.System):
 		#momo form
 		# attack, continue	
 
+
+		#get weapon ent
+		if not self.scene.entity_has_component(weapon_eid, "weapon"):
+			logging.error("failed to get weapon entity.")
+			return
 		#
-		npc_name :str	=	target_ent['npc'].name
+		weapon_ent = self.scene.get_entity(weapon_eid)
+
+
+		#
+		npc_name :str		=	target_ent['npc'].name
+		default_field_name :str	=	"DEFAULT_ATTACKING"
+		field_name :str 	=	weapon_ent['weapon'].attacking_momo_field	
+		
+
+
+
 
 		#run momo
 		self.attack_momo.add_arguments({'name' : npc_name, 'damage' : damage})
 		self.attack_momo.run(fields = ["OPTION_RUN",\
 						 "OPTION_ATTACK",\
-							"PLAYER_ATTACKING"])
+							default_field_name,\
+								field_name])
+
+		#if a given field_name doesn't exist
+		# set it to default
+		if not self.attack_momo.has_field(field_name):
+			field_name = default_field_name
+
+
 
 
 		#attack
@@ -176,7 +207,7 @@ class Weapons(krcko.System):
 
 
 		#momo form text
-		text :str			=	self.attack_momo.pick("PLAYER_ATTACKING")
+		text :str			=	self.attack_momo.pick(field_name)
 
 		#momo action
 		momo_action			=	krcko.momo_action(text, [attack_action, continue_action], [attack_option_text, continue_option_text], [attack_key, continue_key])
@@ -206,9 +237,10 @@ class Weapons(krcko.System):
 
 		#check if npc has a weapon in hand
 		# and count total damage
-		has_weapon :bool 
+		has_weapon :bool
+		weapon_eid :int 
 		damage :int
-		has_weapon, damage = self.get_equipped_weapon_damage(npc_eid)
+		has_weapon, (weapon_eid, damage) = self.get_equipped_weapon_damage(npc_eid)
 
 		#no weapon equipped
 		if not has_weapon:
@@ -219,16 +251,34 @@ class Weapons(krcko.System):
 		player_ent['health'].amount -= damage
 
 
+
+		#get weapon ent
+		if not self.scene.entity_has_component(weapon_eid, "weapon"):
+			logging.error("failed to get weapon component.")
+			return
+		#
+		weapon_ent = self.scene.get_entity(weapon_eid)
+
+
 		#momo form
 		# continue	
 
 		#
-		npc_name :str	=	npc_ent['npc'].name
+		npc_name :str			=	npc_ent['npc'].name
+		default_field_name :str		=	"DEFAULT_TARGET"
+		field_name :str			=	weapon_ent['weapon'].target_momo_field
 
 		#run momo
 		self.attack_momo.add_arguments({'name' : npc_name, 'damage' : damage})
 		self.attack_momo.run(fields = ["OPTION_CONTINUE",\
-								"PLAYER_TARGET"])
+								default_field_name,
+									field_name])
+		#
+		#if a given field_name doesn't exist
+		# set it to default
+		if not self.attack_momo.has_field(field_name):
+			field_name = default_field_name
+
 
 		#continue
 		continue_action			=	krcko.create_action("CONTINUE", [], [], [])
@@ -237,7 +287,7 @@ class Weapons(krcko.System):
 
 
 		#momo form text
-		text :str			=	self.attack_momo.pick("PLAYER_TARGET")
+		text :str			=	self.attack_momo.pick(field_name)
 
 		#momo action
 		momo_action			=	krcko.momo_action(text, [continue_action], [continue_option_text], [continue_key])

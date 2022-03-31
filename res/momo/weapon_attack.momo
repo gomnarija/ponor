@@ -1,21 +1,39 @@
-#Form text fro when
+
+#DEFAULT
+
+#Form text for when
 # player is attacking with weapon.
 #
->>PLAYER_ATTACKING : name, damage
+>>DEFAULT_ATTACKING : name, damage
 >"udaras i skidas "+ damage + " zivotna poena."
-
 
 #Form text for when
 # player is attacked by weapon.
 #
->>PLAYER_TARGET : name, damage
+>>DEFAULT_TARGET : name, damage
 >name + " te udara i nanosi ti " + damage + " poena stete."
+
+
+#SWORD
+
+#Attacking with a sword weapon.
+#
+#
+>>SWORD_ATTACKING : name, damage
+>"zamahinjes macem, pogadjas, i skidas " + damage + " poena stete."
+
+#Attacked by a sword weapon.
+#
+#
+>>SWORD_TARGET : name, damage
+>name + " te udara macem i skida ti " + damage + " poena stete."
+
 
 
 #Trying to attack, without any
 # weapons equipped.
 #
->>PLAYER_EMPTY
+>>EMPTY
 >"nemas sa cim da napadnes"
 >"pokusavas da napadnes bez upotrebljenog oruzja, nista se ne desava."
 

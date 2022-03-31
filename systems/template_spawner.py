@@ -5,6 +5,7 @@ class TemplateSpawner(krcko.System):
 	from configparser import ConfigParser
 	import random
 	import re
+	import copy
 
 	#STELOVANJE
 	
@@ -185,7 +186,11 @@ class TemplateSpawner(krcko.System):
 		#copy
 		components = []
 		for t in tmp:
-			components.append(t.__copy__())
+			#copy component
+			component_factory 	= t.__class__
+			component_values	= list(t._asdict().values())
+			#
+			components.append(component_factory(*self.copy.deepcopy(component_values)))
 			#random values, tuple with min, max
 			for index in range(0, len(components[-1])):
 				_field = components[-1][index]
