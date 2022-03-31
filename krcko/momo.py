@@ -326,6 +326,12 @@ class Momo():
 			self.m_arguments[arg] = args[arg]
 
 
+	def has_field(self, field :str) -> bool:
+		'''check if momo has a loaded field
+			 with a given name '''
+		
+		return field in self.m_avaliable.keys()
+
 
 
 	def pick(self, field :str) -> str:
