@@ -35,3 +35,14 @@
 >>OPTION_EQUIP_WEAPON
 >"uzmi u ruke"
 >"stavi u ruke"
+
+
+#Unequip item of 
+# type weapon.
+#
+>>OPTION_UNEQUIP_WEAPON
+>"odlozi ga"
+>"vrati u prtljag"
+
+
+

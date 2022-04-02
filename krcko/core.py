@@ -152,7 +152,8 @@ class Game:
 				'CONTINUE'	: 'KEY_SPACE',
 				'PICKUP'	: 'p',
 				'ATTACK'	: 'n',
-				'EQUIP'		: 'u'
+				'EQUIP'		: 'u',
+				'UNEQUIP'	: 'y'
 			}
 
 

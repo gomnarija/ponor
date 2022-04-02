@@ -26,7 +26,7 @@ class InventoryController(krcko.System):
 		#inspect item action detection
 		if self.turn_machine.action_name == "INSPECT_ITEM":
 			inspection_action = self.turn_machine.action
-			self.do_inspect(inspection_action.item_eid, inspection_action.amount)
+			self.do_inspect(inspection_action.item_eid, inspection_action.amount, inspection_action.is_equipped)
 
 
 		#equip item action detection 
@@ -34,12 +34,53 @@ class InventoryController(krcko.System):
 			equip_action = self.turn_machine.action	
 			self.do_equip(equip_action.carrier_eid, equip_action.item_eid, equip_action.equip_type)
 
+		#unequip item action detection 
+		if self.turn_machine.action_name == "UNEQUIP_ITEM":
+			unequip_action = self.turn_machine.action	
+			self.do_unequip(unequip_action.carrier_eid, unequip_action.item_eid, unequip_action.equip_type)
+
 
 
 
 
 	def cleanup(self):
 		pass
+
+
+	def do_unequip(self, carrier_eid :int, item_eid :int, equip_type :str) -> None:
+		'''unequip a given item.
+			types:
+				hands
+				head
+				chest
+				legs'''
+
+			
+		#get item entity
+		item_ent = self.scene.get_entity(item_eid)
+		if not self.scene.entity_has_component(item_eid, "item"):
+			logging.error("failed to get item entity.")
+			return
+		
+		#get carrier inventory component
+		if not self.scene.entity_has_component(carrier_eid, "inventory"):
+			logging.error("carrier doesn't have inventory component.")
+			return
+		
+		carrier_ent 	= self.scene.get_entity(carrier_eid)
+		inventory 	= carrier_ent['inventory']
+		
+		
+		#hands item type
+		if equip_type == "hands":
+			#must actually be in hands
+			if item_eid in inventory.hands:
+				inventory.hands.remove(item_eid)				
+
+	
+		#TODO: other item types		
+		
+
 
 
 	def do_equip(self, carrier_eid :int, item_eid :int,equip_type :str) -> None:
@@ -78,7 +119,7 @@ class InventoryController(krcko.System):
 		#TODO: other item types		
 
 
-	def do_inspect(self, item_eid :int, amount :int) -> None:
+	def do_inspect(self, item_eid :int, amount :int, is_equipped :bool) -> None:
 		'''display momo form with item info '''
 		
 		#get item
@@ -92,10 +133,12 @@ class InventoryController(krcko.System):
 		if self.scene.entity_has_component(item_eid, "weapon"):
 			#inspect weapon action
 			inspect_weapon_action = krcko.create_action("INSPECT_WEAPON", [krcko.ActionFlag.INSERTING],\
-								["item_eid", "amount"], [item_eid, amount])
+								["item_eid", "amount", "is_equipped"], [item_eid, amount, is_equipped])
 			#insert
 			self.turn_machine.insert_action(inspect_weapon_action)
 			return		
+
+
 
 
 		#momo

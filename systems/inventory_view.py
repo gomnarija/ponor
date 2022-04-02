@@ -64,13 +64,14 @@ class InventoryView(krcko.System):
 		key = self.game.get_key()
 	
 		#only while turn machine is unhalted,
-		# detect inspection keys	
-		if not self.turn_machine.is_halted and key >= "0" and key <= "9":
-			if not self.turn_machine.is_halted:
+		if not self.turn_machine.is_halted:
+			# detect inspection keys	
+			if key >= "0" and key <= "9":
 				self.inspect_item(int(key))
 
-
-
+			# detect equipped keys
+			if key in self.equipped.keys():
+				self.inspect_equipped_item(key)
 
 
 
@@ -79,7 +80,19 @@ class InventoryView(krcko.System):
 		pass
 
 
-	def inspect_item(self, item_index :int) -> None:
+	def inspect_equipped_item(self, key :str) -> None:
+		'''equipped item inspection'''
+
+
+		#get item eid
+		equipped_item_eid :int = self.equipped[key]
+
+		#inspect it 
+		self._inspect(equipped_item_eid, is_equipped =True)
+
+
+
+	def inspect_item(self, item_index :int, is_equipped :bool =False) -> None:
 		'''momo form with item info'''
 		
 		#momo
@@ -106,20 +119,31 @@ class InventoryView(krcko.System):
 		item_name :str
 		item_eid  :int
 		item_name, item_eid = self.item_ids[item_index]
-			
-		amount :int = self.inventory[item_name]
+
+		item_amount :int = self.inventory[item_name]
+		
+		self._inspect(item_eid, amount = item_amount)
+
+
+
+
+	def _inspect(self, item_eid :int, amount :int =1, is_equipped :bool = False) -> None:
+		'''sends out inspect action'''
+
 
 		#get ent
 		item_ent = self.scene.get_entity(item_eid)
 	
 		#inspect item action
 		inspect_action = krcko.create_action("INSPECT_ITEM", [krcko.ActionFlag.INSERTING],\
-							["item_eid", "amount"], [item_eid, amount])
+							["item_eid", "amount", "is_equipped"], [item_eid, amount, is_equipped])
 
 
 		
 		#insert
 		self.turn_machine.insert_action(inspect_action)
+
+
 
 
 	

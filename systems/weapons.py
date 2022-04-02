@@ -18,14 +18,16 @@ class Weapons(krcko.System):
 		
 		#weapon inspection action detection :*)
 		if self.turn_machine.action_name == "INSPECT_WEAPON":
-			self.do_inspect(self.turn_machine.action.item_eid, 1)	
+			inspection_action = self.turn_machine.action
+			self.do_inspect(inspection_action.item_eid, inspection_action.is_equipped)	
 
 
 
 		#attack action detection
 		if self.turn_machine.action_name == "ATTACK":
-			self.do_attack(self.turn_machine.action.attacker_eid,\
-					self.turn_machine.action.target_eid)
+			attack_action = self.turn_machine.action
+			self.do_attack(attack_action.attacker_eid,\
+						attack_action.target_eid)
 
 	def cleanup(self):
 		pass
@@ -307,7 +309,7 @@ class Weapons(krcko.System):
 
 
 
-	def do_inspect(self, item_eid :int, amount :int) -> None:
+	def do_inspect(self, item_eid :int, is_equipped :bool) -> None:
 		'''display momo form with weapons info '''
 		
 		#get item
@@ -330,7 +332,7 @@ class Weapons(krcko.System):
 									'durability' : durability,
 										'crt' : crt_chance})
 		#
-		self.inspect_momo.run(fields = ["WEAPONS", "OPTION_CONTINUE", "OPTION_EQUIP_WEAPON"])
+		self.inspect_momo.run(fields = ["WEAPONS", "OPTION_CONTINUE", "OPTION_EQUIP_WEAPON", "OPTION_UNEQUIP_WEAPON"])
 
 
 		#continue option
@@ -341,6 +343,7 @@ class Weapons(krcko.System):
 
 
 		#carrier is player
+		#
 		player_eid :int		=	self.scene.get_eid_from_name("player")
 		#equip option 
 		equip_action		=	krcko.create_action("EQUIP_ITEM", [krcko.ActionFlag.ENDING],\
@@ -350,13 +353,36 @@ class Weapons(krcko.System):
 		equip_option_text :str		=	self.inspect_momo.pick("OPTION_EQUIP_WEAPON")
 		equip_key :str			=	self.game.controls['MOMO']['EQUIP']
 	
+
+		#unequip option 
+		unequip_action		=	krcko.create_action("UNEQUIP_ITEM", [krcko.ActionFlag.ENDING],\
+										['carrier_eid','item_eid','equip_type'],
+											[player_eid, item_eid, 'hands'])
+		#
+		unequip_option_text :str		=	self.inspect_momo.pick("OPTION_UNEQUIP_WEAPON")
+		unequip_key :str			=	self.game.controls['MOMO']['UNEQUIP']
+	
+
+
 		#momo form text
 		info_text :str		=	self.inspect_momo.pick("WEAPONS")
 
+
 		#momo form
-		momo_action		=	krcko.momo_action(info_text, [equip_action, continue_action],\
-										 [equip_option_text, continue_option_text],\
-											 [equip_key, continue_key])
+		if is_equipped:
+			#unequip, continue
+			momo_action		=	krcko.momo_action(info_text, [unequip_action, continue_action],\
+											 [unequip_option_text, continue_option_text],\
+												 [unequip_key, continue_key])
+
+		else:
+			#equip, continue													
+			momo_action		=	krcko.momo_action(info_text, [equip_action, continue_action],\
+											 [equip_option_text, continue_option_text],\
+												 [equip_key, continue_key])
+
+
+
 		#insert
 		self.turn_machine.insert_action(momo_action)
 	
