@@ -17,5 +17,5 @@ weapons		=	"mac.t"
 
 [movable.json]
 [health.json]
-max_health		=	60^150
+max_health		=	6^10
 

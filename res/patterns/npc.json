@@ -5,6 +5,7 @@
 		"class_name": "",
 		"name" : "NPC",
 		"agro"	: 0,
-		"is_interacting" : false 
+		"is_interacting" : false,
+		"death_momo_field" : "MOMO_FIELD" 
 	}
 }

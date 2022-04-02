@@ -10,4 +10,3 @@ amount			=	1^5
 [position.json] 
 [drawable.json]
 ascii_id	=	"MONEY"
-[money.json]

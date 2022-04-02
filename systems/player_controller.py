@@ -273,10 +273,6 @@ class PlayerControler(krcko.System):
 		#set ascii
 		self.player_ent['drawable'].ascii = self.game.get_ascii('PLAYER')
 
-
-		#fill up health
-		self.player_ent['health'].amount = self.player_ent['health'].max_health
-
 		#hunger, between 0,50 %
 		self.player_ent['hunger'].amount = self.random.randint(0, int(self.player_ent['hunger'].max_hunger/100) * 50)
 		
