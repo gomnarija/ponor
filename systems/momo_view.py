@@ -57,6 +57,12 @@ class MomoView(krcko.System):
 					self.turn_machine.add_action(action.actions[key_index])
 				#empty text buffer
 				self.text_buffer	=	""
+
+
+
+		#update view
+		krcko.curse_update(self.view)
+
 				
 					
 			

@@ -109,11 +109,20 @@ class DungeonView(krcko.System):
 			#
 			self.last_turn	=	self.turn_machine.turn_number
 
+			
+			#update view
+			krcko.curse_update(self.view)
+			krcko.curse_update(self.back_view)
+
+
 
 	
 		#draw leftover from previous scene
 		if not self.leftovers_done:
 			self.draw_leftovers(self.camera.y - self.start_camera_y)
+
+
+
 
 
 	

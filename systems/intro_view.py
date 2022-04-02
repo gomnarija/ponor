@@ -34,13 +34,12 @@ class IntroView(krcko.System):
 	sbs	  :int		=	0	#scroll frame counter
 	next_scene_loaded :bool =	False
 	def update(self):
-	
+		self.update_view()
+
 		#update window view
 		self.update_view()
 
-
 		self.draw_particles(self.sb)
-
 		#get median frames per second, it takes some time so it 
 		# needs max :)
 		m_fps	=	max(self.game.clock.median_fps,10)
@@ -74,6 +73,12 @@ class IntroView(krcko.System):
 		if self.cs / self.next_scene_time >= m_fps:
 			#krcko.curse_clear(self.view)
 			self.game.change_scene("scena")
+
+
+		krcko.curse_update(self.view)
+
+
+
 
 	def cleanup(self):
 		pass
@@ -158,8 +163,10 @@ class IntroView(krcko.System):
 
 		self.view_rect 	= view_rect
 		self.view 	= krcko.create_sub_window(main_window,view_rect.height, view_rect.width, view_rect.y, view_rect.x)
+
 		#clear view
 		krcko.curse_clear(self.view)
+
 
 
 

@@ -45,6 +45,12 @@ class StatsView(krcko.System):
 		self.display_turn_number()
 		self.display_depth()
 
+
+
+		#update view
+		krcko.curse_update(self.view)
+
+
 	def cleanup(self):
 		pass
 

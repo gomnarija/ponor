@@ -74,6 +74,12 @@ class InventoryView(krcko.System):
 				self.inspect_equipped_item(key)
 
 
+				
+		#update view
+		krcko.curse_update(self.view)
+
+
+
 
 
 	def cleanup(self):
