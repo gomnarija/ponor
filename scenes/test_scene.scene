@@ -6,8 +6,10 @@ systems/template_items.py
 systems/player_controller.py
 systems/npc_controller.py
 systems/item_controller.py
+systems/inventory_controller.py
 systems/weapons.py
 systems/moving.py
+systems/health.py
 systems/stats_view.py
 systems/dungeon_view.py
 systems/inventory_view.py
