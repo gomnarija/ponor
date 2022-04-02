@@ -1,3 +1,4 @@
+from tkinter import W
 from krcko.system import *
 from krcko.component import *
 from krcko.utils import *
@@ -303,23 +304,25 @@ class Game:
 		else:
 			self.window_resized = False	
 		
+		#MS: NOT WORKING; TODO
+		#FREEZES AFTER DRAWING ERROR
 		#check window size
 		#too small
-		if curr_size.y < self.min_window_size.height or\
-			curr_size.x < self.min_window_size.width:
-			#
-			krcko.curse_clear(self.main_window)
-			krcko.draw_text(self.main_window,"window too small :(",1, 1)
-			curse_update(self.main_window)
-			return
-		#too big
-		if curr_size.y > self.max_window_size.height or\
-			curr_size.x > self.max_window_size.width:
-			#
-			krcko.curse_clear(self.main_window)
-			krcko.draw_text(self.main_window,"window too big :(", 1, 1)
-			curse_update(self.main_window)
-			return
+		#if curr_size.y < self.min_window_size.height or\
+		#	curr_size.x < self.min_window_size.width:
+		#	#
+		#	krcko.curse_clear(self.main_window)
+		#	krcko.draw_text(self.main_window,"window too small :(",1, 1)
+		#	curse_update(self.main_window)
+		#	return
+		##too big
+		#if curr_size.y > self.max_window_size.height or\
+		#	curr_size.x > self.max_window_size.width:
+		#	#
+		#	krcko.curse_clear(self.main_window)
+		#	krcko.draw_text(self.main_window,"window too big :(", 1, 1)
+		#	curse_update(self.main_window)
+		#	return
 
 
 
@@ -327,8 +330,8 @@ class Game:
 		#input handling, key_dps per second
 		if self.key_detection_timer * self.key_dps >= self.clock.median_fps:
 			self.detect_keys()
-			self.key_detection_timer = 0	
-
+			self.key_detection_timer = 0
+		
 		#update current scene
 		if self.current_scene == "":
 			logging.error("Game: "+self.name+" current scene missing.")
