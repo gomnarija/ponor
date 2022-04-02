@@ -313,6 +313,11 @@ class Scene:
 		 params:
 		 	eid: entity id
 		'''
+
+		if not type(eid) is int:
+			logging.error("eid must be int, got: " + str(eid) + ". of type: " + str(type(eid)))
+			return False
+
 		return eid in self.m_entities.keys()
 
 	
