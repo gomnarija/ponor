@@ -3,7 +3,8 @@ from typing import List, Any
 from recordclass import recordclass
 import logging
 
-
+import krcko.core as krcko
+import definitions as defs
 
 #action flags
 class ActionFlag(Flag):
@@ -21,7 +22,7 @@ class ActionFlag(Flag):
 	INSERTING	= 6  #insert this action into current turn
 
 
-def create_action(name :str, flags :List[ActionFlag], props :List[str], vals :List[Any], entails = None):
+def create_action(name :str, flags :List[ActionFlag], props :List[str], vals :List[Any], entails = None) -> Any:
 	action = recordclass(name, ['flags','entails'] + props)
 	return action(flags,entails,*vals)
 
@@ -33,6 +34,24 @@ def momo_action(momo_text :str, actions :List[any], action_names :List[str], act
 						[ActionFlag.HALTING,ActionFlag.INSERTING],\
 							['text', 'actions', 'action_names', 'action_keys'],\
 								[momo_text, actions, action_names, action_keys])
+
+
+def momo_info_action(momo_text :str, key :str) -> Any:
+		'''creates momo action with a single option 
+			that does nothing'''
+
+		#general stuff momo
+		gen_momo = krcko.Momo()
+		gen_momo.load(defs.MOM_DIR_PATH + "gen.momo")
+		gen_momo.run(fields = "OPTION_UNDERSTOOD")
+			
+		#understood action
+		understood_option_action	= create_action("UNDERSTOOD", [], [], [])
+		understood_option_text	:str	= gen_momo.pick("OPTION_UNDERSTOOD")
+		understood_option_key :str	= key
+
+
+		return momo_action(momo_text, [understood_option_action], [understood_option_text], [understood_option_key])
 
 
 
