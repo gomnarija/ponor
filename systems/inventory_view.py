@@ -1,5 +1,5 @@
 class InventoryView(krcko.System):
-	'''Displays the inventory'''
+	'''Displays player inventory'''
 	
 	
 	#STELOVANJE
@@ -11,15 +11,15 @@ class InventoryView(krcko.System):
 		#get player ent
 		self.player_ent = self.scene.get_entity_from_name("player")
 
-		#
-		self.inspect_momo = krcko.Momo()
-		self.inspect_momo.load(defs.MOM_DIR_PATH + "item_inspect.momo")
-
-
-		#ui stuff
+		#ui stuff momo
 		self.inventory_momo = krcko.Momo()
 		self.inventory_momo.load(defs.MOM_DIR_PATH + "inventory_view.momo")
 		self.inventory_momo.run()
+
+		#inspect momo
+		self.inspect_momo = krcko.Momo()
+		self.inspect_momo.load(defs.MOM_DIR_PATH + "item_inspect.momo")	
+
 	
 
 	_started :bool = False#wait for start action	
@@ -57,24 +57,19 @@ class InventoryView(krcko.System):
 			self.draw_equipped()
 
 
+
+		#PLAYER INVENTORY INSPECTION
+		
 		#inspect detection
 		key = self.game.get_key()
 	
-
 		#only while turn machine is unhalted,
 		# detect inspection keys	
 		if not self.turn_machine.is_halted and key >= "0" and key <= "9":
 			if not self.turn_machine.is_halted:
 				self.inspect_item(int(key))
 
-		#inspect item action detection
-		if self.turn_machine.action_name == "INSPECT_ITEM":
-			self.do_inspect(self.turn_machine.action.item_eid, self.turn_machine.action.amount)
 
-
-		#equip item action detection 
-		if self.turn_machine.action_name == "EQUIP_ITEM":
-			self.do_equip(self.turn_machine.action.item_eid, self.turn_machine.action.equip_type)
 
 
 
@@ -82,6 +77,49 @@ class InventoryView(krcko.System):
 
 	def cleanup(self):
 		pass
+
+
+	def inspect_item(self, item_index :int) -> None:
+		'''momo form with item info'''
+		
+		#momo
+		self.inspect_momo.add_arguments({'index' : item_index})
+		self.inspect_momo.run(fields=["OPTION_CONTINUE","EMPTY"])
+
+
+		#check
+		if not item_index in self.item_ids.keys():
+			#no item with that index
+			# show momo form with error		
+			continue_action	 		= krcko.create_action("CONTINUE", [], [], [])
+			continue_option_text :str 	= self.inspect_momo.pick("OPTION_CONTINUE")
+			continue_key :str		= self.game.controls['MOMO']['CONTINUE']
+
+			error_text :str = self.inspect_momo.pick("EMPTY") 
+			momo_action	= krcko.momo_action(error_text, [continue_action], [continue_option_text], [continue_key])
+
+			#insert
+			self.turn_machine.insert_action(momo_action)
+			return	
+
+		#all good, get item_name, item_eid
+		item_name :str
+		item_eid  :int
+		item_name, item_eid = self.item_ids[item_index]
+			
+		amount :int = self.inventory[item_name]
+
+		#get ent
+		item_ent = self.scene.get_entity(item_eid)
+	
+		#inspect item action
+		inspect_action = krcko.create_action("INSPECT_ITEM", [krcko.ActionFlag.INSERTING],\
+							["item_eid", "amount"], [item_eid, amount])
+
+
+		
+		#insert
+		self.turn_machine.insert_action(inspect_action)
 
 
 	
@@ -145,15 +183,10 @@ class InventoryView(krcko.System):
 		#get player inventory
 		player_inventory = self.player_ent['inventory']
 		
-		#one item in hands, in right hand
+		#item in hands, in right hand
 		if len(player_inventory.hands) == 1:
-			self.equipped['DR'] = player_inventory.hands[0]
+			self.equipped['R'] = player_inventory.hands[0]
 		
-		#two item in hands
-		if len(player_inventory.hands) == 2:
-			self.equipped['DR'] = player_inventory.hands[0]
-			self.equipped['LR'] = player_inventory.hands[1]
-			
 		#item on head
 		if len(player_inventory.head) == 1:
 			self.equipped['G'] = player_inventory.heads[0]
@@ -166,129 +199,6 @@ class InventoryView(krcko.System):
 		if len(player_inventory.legs) == 1:
 			self.equipped['N'] = player_inventory.legs[0]
 	
-
-
-		
-
-	def do_equip(self, item_eid :int,equip_type :str) -> None:
-		'''equip a given item of given equip type.
-			types:
-				hands
-				head
-				chest
-				legs		'''
-
-		#get item entity
-		item_ent = self.scene.get_entity(item_eid)
-		if not self.scene.entity_has_component(item_eid, "item"):
-			logging.error("failed to get item entity.")
-			return
-		
-		#get player inventory component
-		player_inventory = self.player_ent['inventory']
-
-	
-		#hands item type
-		if equip_type == "hands":
-			#max items in hands is 2
-			if len(player_inventory.hands) == 2:
-				#remove first equiped one 
-				#TODO: maybe ask if you're sure about this
-				player_inventory.hands.pop(0)
-			#add new item
-			player_inventory.hands.append(item_eid)
-			
-			
-				
-
-
-	def do_inspect(self, item_eid :int, amount :int) -> None:
-		'''display momo form with item info '''
-		
-		#get item
-		item_ent = self.scene.get_entity(item_eid)
-		if not self.scene.entity_has_component(item_eid, "item"):
-			logging.error("failed to get item entity")
-			return
-
-
-		#if weapon, send it away
-		if self.scene.entity_has_component(item_eid, "weapon"):
-			#inspect weapon action
-			inspect_weapon_action = krcko.create_action("INSPECT_WEAPON", [krcko.ActionFlag.INSERTING],\
-								["item_eid", "amount"], [item_eid, amount])
-			#insert
-			self.turn_machine.insert_action(inspect_weapon_action)
-			return		
-
-
-		#momo
-		self.inspect_momo.add_arguments({'name' : item_ent['item'].name,\
-							'amount' : amount,\
-								'weight' : item_ent['item'].weight * amount})
-		#
-		self.inspect_momo.run(fields=["DEFAULT", "OPTION_CONTINUE"])
-
-
-		#continue option
-		continue_action			=	krcko.create_action("CONTINUE", [], [], [])
-		continue_option_text :str	=	self.inspect_momo.pick("OPTION_CONTINUE")
-		continue_key :str		=	self.game.controls['MOMO']['CONTINUE']
-
-
-		
-		#momo form text
-		info_text :str		=	self.inspect_momo.pick("DEFAULT")	
-
-
-		#momo form
-		momo_action		=	krcko.momo_action(info_text, [continue_action], [continue_option_text], [continue_key])
-		#insert
-		self.turn_machine.insert_action(momo_action)
-	
-			
-
-	def inspect_item(self, item_index :int) -> None:
-		'''momo form with item info'''
-		
-		#momo
-		self.inspect_momo.add_arguments({'index' : item_index})
-		self.inspect_momo.run(fields=["OPTION_CONTINUE","EMPTY"])
-
-
-		#check
-		if not item_index in self.item_ids.keys():
-			#no item with that index
-			# show momo form with error		
-			continue_action	 		= krcko.create_action("CONTINUE", [], [], [])
-			continue_option_text :str 	= self.inspect_momo.pick("OPTION_CONTINUE")
-			continue_key :str		= self.game.controls['MOMO']['CONTINUE']
-
-			error_text :str = self.inspect_momo.pick("EMPTY") 
-			momo_action	= krcko.momo_action(error_text, [continue_action], [continue_option_text], [continue_key])
-
-			#insert
-			self.turn_machine.insert_action(momo_action)
-			return	
-
-		#all good, get item_name, item_eid
-		item_name :str
-		item_eid  :int
-		item_name, item_eid = self.item_ids[item_index]
-			
-		amount :int = self.inventory[item_name]
-
-		#get ent
-		item_ent = self.scene.get_entity(item_eid)
-	
-		#inspect item action
-		inspect_action = krcko.create_action("INSPECT_ITEM", [krcko.ActionFlag.INSERTING],\
-							["item_eid", "amount"], [item_eid, amount])
-
-
-		
-		#insert
-		self.turn_machine.insert_action(inspect_action)
 
 
 	def draw_items(self) -> None:

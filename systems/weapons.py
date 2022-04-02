@@ -37,6 +37,12 @@ class Weapons(krcko.System):
 	def do_attack(self, attacker_eid :int, target_eid :int) -> None:
 		'''attack target if attacker has an equipped weapon'''
 
+		#died or something
+		if not self.scene.has_entity(attacker_eid) or\
+			not self.scene.has_entity(target_eid):
+			#
+			return
+
 		#player is attacking
 		if attacker_eid == self.scene.get_eid_from_name("player"):
 			self.player_attack(target_eid)
@@ -226,7 +232,7 @@ class Weapons(krcko.System):
 		# and must have inventory
 		if not self.scene.entity_has_component(npc_eid, "npc") or\
 			not self.scene.entity_has_component(npc_eid, "inventory"):
-				logging.error("weapon target must be a npc and must have inventory.")
+				logging.error("attacker must be a npc and must have inventory.")
 				return
 	
 		#get npc entity
@@ -334,10 +340,12 @@ class Weapons(krcko.System):
 
 
 
+		#carrier is player
+		player_eid :int		=	self.scene.get_eid_from_name("player")
 		#equip option 
 		equip_action		=	krcko.create_action("EQUIP_ITEM", [krcko.ActionFlag.ENDING],\
-										['item_eid','equip_type'],
-											[item_eid, 'hands'])
+										['carrier_eid','item_eid','equip_type'],
+											[player_eid, item_eid, 'hands'])
 		#
 		equip_option_text :str		=	self.inspect_momo.pick("OPTION_EQUIP_WEAPON")
 		equip_key :str			=	self.game.controls['MOMO']['EQUIP']
