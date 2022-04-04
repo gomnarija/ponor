@@ -332,7 +332,7 @@ class Weapons(krcko.System):
 									'durability' : durability,
 										'crt' : crt_chance})
 		#
-		self.inspect_momo.run(fields = ["WEAPONS", "OPTION_CONTINUE", "OPTION_EQUIP_WEAPON", "OPTION_UNEQUIP_WEAPON"])
+		self.inspect_momo.run(fields = ["WEAPONS", "OPTION_CONTINUE", "OPTION_EQUIP_WEAPON", "OPTION_UNEQUIP_WEAPON", "OPTION_DROP_ITEM"])
 
 
 		#continue option
@@ -362,6 +362,17 @@ class Weapons(krcko.System):
 		unequip_option_text :str		=	self.inspect_momo.pick("OPTION_UNEQUIP_WEAPON")
 		unequip_key :str			=	self.game.controls['MOMO']['UNEQUIP']
 	
+		
+		#player is carrier
+		carrier_eid :int		=	self.scene.get_eid_from_name("player")	
+		#drop option	
+		drop_action			=	krcko.create_action("DROP_ITEM", [krcko.ActionFlag.ENDING], ['carrier_eid', 'item_eid'], [carrier_eid, item_eid])
+		drop_option_text :str		=	self.inspect_momo.pick("OPTION_DROP_ITEM")
+		drop_key :str			=	self.game.controls['MOMO']['DROP_ITEM']
+		
+
+
+
 
 
 		#momo form text
@@ -376,10 +387,10 @@ class Weapons(krcko.System):
 												 [unequip_key, continue_key])
 
 		else:
-			#equip, continue													
-			momo_action		=	krcko.momo_action(info_text, [equip_action, continue_action],\
-											 [equip_option_text, continue_option_text],\
-												 [equip_key, continue_key])
+			#equip, drop, continue													
+			momo_action		=	krcko.momo_action(info_text, [equip_action, drop_action, continue_action],\
+											 [equip_option_text, drop_option_text, continue_option_text],\
+												 [equip_key, drop_key, continue_key])
 
 
 

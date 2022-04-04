@@ -45,4 +45,9 @@
 >"vrati u prtljag"
 
 
-
+#Drop item from
+# inventory.
+#
+>>OPTION_DROP_ITEM
+>"izbaci"
+>"baci"

@@ -40,12 +40,39 @@ class InventoryController(krcko.System):
 			self.do_unequip(unequip_action.carrier_eid, unequip_action.item_eid, unequip_action.equip_type)
 
 
+		#drop item action detection
+		if self.turn_machine.action_name == "DROP_ITEM":
+			drop_action = self.turn_machine.action
+			self.do_drop(drop_action.carrier_eid, drop_action.item_eid)
+			
+
+
 
 
 
 	def cleanup(self):
 		pass
 
+
+	def do_drop(self, carrier_eid :int, item_eid :int) -> None:
+		'''drop item from inventory'''
+
+
+		#get inventory
+		if not self.scene.entity_has_component(carrier_eid, "inventory"):
+			logging.error("carrier doesn't have inventory compoent.")
+			return
+
+		carrier_ent 	= self.scene.get_entity(carrier_eid)
+		inventory 	= carrier_ent['inventory']
+
+		#if inside
+		if item_eid in inventory.items:
+			#drop it 
+			inventory.items.remove(item_eid) 
+
+
+	
 
 	def do_unequip(self, carrier_eid :int, item_eid :int, equip_type :str) -> None:
 		'''unequip a given item.
@@ -119,7 +146,7 @@ class InventoryController(krcko.System):
 		#TODO: other item types		
 
 
-	def do_inspect(self, item_eid :int, amount :int, is_equipped :bool) -> None:
+	def do_inspect(self,item_eid :int, amount :int, is_equipped :bool) -> None:
 		'''display momo form with item info '''
 		
 		#get item
@@ -146,7 +173,7 @@ class InventoryController(krcko.System):
 							'amount' : amount,\
 								'weight' : item_ent['item'].weight * amount})
 		#
-		self.inspect_momo.run(fields=["DEFAULT", "OPTION_CONTINUE"])
+		self.inspect_momo.run(fields=["DEFAULT", "OPTION_CONTINUE", "OPTION_DROP_ITEM"])
 
 
 		#continue option
@@ -155,13 +182,22 @@ class InventoryController(krcko.System):
 		continue_key :str		=	self.game.controls['MOMO']['CONTINUE']
 
 
+
+		#player is carrier
+		carrier_eid :int		=	self.scene.get_eid_from_name("player")	
+		#drop option	
+		drop_action			=	krcko.create_action("DROP_ITEM", [krcko.ActionFlag.ENDING], ['carrier_eid', 'item_eid'], [carrier_eid, item_eid])
+		drop_option_text :str		=	self.inspect_momo.pick("OPTION_DROP_ITEM")
+		drop_key :str			=	self.game.controls['MOMO']['DROP_ITEM']
 		
+
+	
 		#momo form text
 		info_text :str		=	self.inspect_momo.pick("DEFAULT")	
 
 
 		#momo form
-		momo_action		=	krcko.momo_action(info_text, [continue_action], [continue_option_text], [continue_key])
+		momo_action		=	krcko.momo_action(info_text, [continue_action, drop_action], [continue_option_text, drop_option_text], [continue_key, drop_key])
 		#insert
 		self.turn_machine.insert_action(momo_action)
 	

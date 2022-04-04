@@ -153,7 +153,8 @@ class Game:
 				'PICKUP'	: 'p',
 				'ATTACK'	: 'n',
 				'EQUIP'		: 'u',
-				'UNEQUIP'	: 'y'
+				'UNEQUIP'	: 'y',
+				'DROP_ITEM'	: 'q'
 			}
 
 
