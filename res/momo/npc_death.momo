@@ -1,0 +1,5 @@
+#Default npc death
+#
+#
+>>DEFAULT_DEATH : name
+>name + " umire."
