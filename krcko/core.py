@@ -154,7 +154,8 @@ class Game:
 				'PICKUP'	: 'p',
 				'ATTACK'	: 'n',
 				'EQUIP'		: 'u',
-				'UNEQUIP'	: 'y'
+				'UNEQUIP'	: 'y',
+				'DROP_ITEM'	: 'q'
 			}
 
 
@@ -169,6 +170,7 @@ class Game:
 				'HALLWAY_FLOOR'	:	4194401,
 				'RAVEN'		:	71,
 				'MONEY'		:	42,
+				'BREAD'		:	40,
 				'SWORD'		:	33,
 				'BAR_FULL'	:	4194352,
 				'BAR_EMPTY'	:	34

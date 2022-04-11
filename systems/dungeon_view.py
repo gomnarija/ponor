@@ -68,13 +68,13 @@ class DungeonView(krcko.System):
 		if not self.player_found:
 			self.draw_back()
 
-		#draw only at the end of the turn,
+		#draw only at the start of the turn,
 		#	or if window gets resized
 		#		or if camera is not over player
-		if (krcko.ActionFlag.ENDING in self.turn_machine.action.flags and\
-			 self.last_turn != self.turn_machine.turn_number)	or\
-				self.game.window_resized or\
-				not self.camera_over_player:
+		if krcko.ActionFlag.ENDING in self.turn_machine.action.flags and\
+			 self.last_turn != self.turn_machine.turn_number or\
+							self.game.window_resized or\
+								not self.camera_over_player:
 
 
 			#only after player has been found

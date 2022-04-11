@@ -5,7 +5,7 @@ class brana(krcko.System):
 		self.x = 0
 	def update(self):
 		k = self.scene.game.get_key()
-		if k == "q":
+		if k == "Q":
 			self.scene.game.quit()
 
 
