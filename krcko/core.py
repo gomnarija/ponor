@@ -160,7 +160,22 @@ class Game:
 
 	def ascii_defaults(self):
 		'''set default ascii characters'''
-		
+
+		#special ncurses characters
+		self.ac_table	=\
+		{
+			'AC_BULLET' 	: AC_BULLET,\
+			'AC_DIAMOND' 	: AC_DIAMOND,\
+			'AC_CKBOARD' 	: AC_CKBOARD,\
+			'AC_BLOCK' 		: AC_BLOCK,\
+			'AC_HLINE'		: AC_HLINE,\
+			'AC_VLINE'		: AC_VLINE,\
+			'AC_RTEE'		: AC_RTEE,\
+			'AC_LTEE'		: AC_LTEE,\
+		}
+
+
+
 		self.ascii_table['ASCII'] =\
 			{
 				'PLAYER'	:	64,
@@ -199,7 +214,24 @@ class Game:
 			logging.warning("key " + key + " found in ascii table.")
 			return ord('X')
 
-		return int(self.ascii_table['ASCII'][key])
+		character :str = self.ascii_table['ASCII'][key]
+		#special ncurses characters
+		#	AC_
+		if character[0:3] == "AC_":
+			if character in self.ac_table.keys():
+				return self.ac_table[character]
+			#special character not defined
+			else:
+				logging.warning("undefined special character: " + character)
+				return ord('X')		
+		#else it's just ascii code
+		elif character.isdigit():
+			return int(character)
+		#error
+		else:
+			logging.warning("wrong ascii table value: " + character)
+			return ord('X')
+
 
 
 	def add_scene(self,scene: Scene) -> None:
