@@ -26,7 +26,9 @@ class InventoryController(krcko.System):
 		#inspect item action detection
 		if self.turn_machine.action_name == "INSPECT_ITEM":
 			inspection_action = self.turn_machine.action
-			self.do_inspect(inspection_action.item_eid, inspection_action.amount, inspection_action.is_equipped)
+			#Inspects only items with DEFAULT item_class
+			if inspection_action.item_class == "DEFAULT":
+				self.do_inspect(inspection_action.item_eid, inspection_action.amount, inspection_action.is_equipped)
 
 
 		#equip item action detection 
@@ -147,25 +149,14 @@ class InventoryController(krcko.System):
 
 
 	def do_inspect(self,item_eid :int, amount :int, is_equipped :bool) -> None:
-		'''display momo form with item info '''
+		'''display momo form with item info, 
+			inspect only items with DEFAULT item_class '''
 		
 		#get item
 		item_ent = self.scene.get_entity(item_eid)
 		if not self.scene.entity_has_component(item_eid, "item"):
 			logging.error("failed to get item entity")
 			return
-
-
-		#if weapon, send it away
-		if self.scene.entity_has_component(item_eid, "weapon"):
-			#inspect weapon action
-			inspect_weapon_action = krcko.create_action("INSPECT_WEAPON", [krcko.ActionFlag.INSERTING],\
-								["item_eid", "amount", "is_equipped"], [item_eid, amount, is_equipped])
-			#insert
-			self.turn_machine.insert_action(inspect_weapon_action)
-			return		
-
-
 
 
 		#momo

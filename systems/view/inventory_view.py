@@ -133,10 +133,12 @@ class InventoryView(krcko.System):
 
 		#get ent
 		item_ent = self.scene.get_entity(item_eid)
-	
+		item_class :str	=	item_ent['item'].item_class
+
 		#inspect item action
 		inspect_action = krcko.create_action("INSPECT_ITEM", [krcko.ActionFlag.INSERTING],\
-							["item_eid", "amount", "is_equipped"], [item_eid, amount, is_equipped])
+											["item_eid","item_class" "amount", "is_equipped"],\
+												[item_eid, item_class, amount, is_equipped])
 
 
 		

@@ -4,6 +4,7 @@ min_depth		=	1
 max_depth		=	10
 rarity			=	75
 [item.json]
+item_class      =   "WEAPON"
 name			=	"mac"
 weight			=	10^15
 amount			=	1

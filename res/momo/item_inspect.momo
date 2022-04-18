@@ -1,16 +1,23 @@
 #Default case, 
-# if item type not specified.
+# if item class not specified.
 #
 >>DEFAULT : name, amount, weight
 >"imas " + name + " [ " + amount + " ]" +  ". ukupna tezina je " + weight + "." 
 >name + " komada [ " + amount + " ]" +  ". tezina iznosi " + weight + "." 
 
-#Weapon item type.
+#Weapon item class.
 #
 #
->>WEAPONS : name, damage, durability, crt
+>>WEAPON : name, damage, durability, crt
 >name + " sa udarnom moci " + damage + " i sansom za kritican udarac od " + crt
 + " posto. preostalih udaraca " + durability + "."
+
+#Food item class.
+#
+#
+>>FOOD  :   name, amount
+>name + " komada " + amount + "."
+
 
 #Error text,
 # when trying to inspect empty
@@ -43,6 +50,13 @@
 >>OPTION_UNEQUIP_WEAPON
 >"odlozi ga"
 >"vrati u prtljag"
+
+#Eat food item 
+#   option.
+#
+>>OPTION_EAT_FOOD
+>"pojedi"
+>"jedi"
 
 
 #Drop item from

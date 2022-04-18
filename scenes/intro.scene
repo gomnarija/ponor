@@ -1,2 +1,2 @@
 [SYSTEM]
-systems/intro_view.py
+systems/view/intro_view.py

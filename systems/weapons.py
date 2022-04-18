@@ -17,9 +17,11 @@ class Weapons(krcko.System):
 	def update(self):
 		
 		#weapon inspection action detection :*)
-		if self.turn_machine.action_name == "INSPECT_WEAPON":
+		if self.turn_machine.action_name == "INSPECT_ITEM":
 			inspection_action = self.turn_machine.action
-			self.do_inspect(inspection_action.item_eid, inspection_action.is_equipped)	
+			#inspect only items with WEAPON item_class
+			if inspection_action.item_class == "WEAPON":
+				self.do_inspect(inspection_action.item_eid, inspection_action.is_equipped)	
 
 
 
@@ -332,7 +334,7 @@ class Weapons(krcko.System):
 									'durability' : durability,
 										'crt' : crt_chance})
 		#
-		self.inspect_momo.run(fields = ["WEAPONS", "OPTION_CONTINUE", "OPTION_EQUIP_WEAPON", "OPTION_UNEQUIP_WEAPON", "OPTION_DROP_ITEM"])
+		self.inspect_momo.run(fields = ["WEAPON", "OPTION_CONTINUE", "OPTION_EQUIP_WEAPON", "OPTION_UNEQUIP_WEAPON", "OPTION_DROP_ITEM"])
 
 
 		#continue option
@@ -376,7 +378,7 @@ class Weapons(krcko.System):
 
 
 		#momo form text
-		info_text :str		=	self.inspect_momo.pick("WEAPONS")
+		info_text :str		=	self.inspect_momo.pick("WEAPON")
 
 
 		#momo form

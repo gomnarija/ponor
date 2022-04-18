@@ -2,11 +2,12 @@
 	"item", 
 	"fields": 
 	{
-		"name"	 		: "ITEM-NAME",
-		"weight" 		: 1,
-		"amount" 		: 1,
-		"stackable" 		: true,
-		"equipable"		: false,
-		"equip_type"	 	: "NON-EQUIPABLE"
+		"item_class"			: "DEFAULT",
+		"name"	 				: "ITEM-NAME",
+		"weight" 				: 1,
+		"amount" 				: 1,
+		"stackable" 			: true,
+		"equipable"				: false,
+		"equip_type"			: "NON-EQUIPABLE"
 	}
 }
