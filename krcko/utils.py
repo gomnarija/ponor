@@ -5,6 +5,25 @@ import traceback
 import random
 import logging
 
+import definitions as defs 
+
+
+def logs_dir() -> None:
+	'''
+		Creates the directory for storing log files,
+			if there is not such a thing already.
+	'''
+
+	logs_dir_path = defs.ROOT_DIR_PATH + "logs"
+
+	if os.path.exists(logs_dir_path):
+		return
+	
+	os.mkdir(logs_dir_path)
+
+
+
+
 def gen_files(dir: str) -> Iterator[str]:
         '''
          Generator for file paths in a dir.
