@@ -3,7 +3,7 @@ class Weapons(krcko.System):
 	
 
 	import random
-
+	from typing import Tuple
 	
 	def setup(self):
 		self.inspect_momo = krcko.Momo()
@@ -57,7 +57,7 @@ class Weapons(krcko.System):
 
 	
 
-	def get_equipped_weapon_damage(self, eid :int) -> tuple[bool, tuple[int, int]]:
+	def get_equipped_weapon_damage(self, eid :int) -> Tuple[bool, Tuple[int, int]]:
 		'''check if entity has a weapon equipped in inventory
 			return (is_equipped, (weapon_eid, total damage))'''
 		

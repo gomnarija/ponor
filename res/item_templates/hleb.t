@@ -8,6 +8,8 @@ item_class      =   "FOOD"
 name			=	"hleb"
 weight			=	4
 amount			=	1^3
+[food.json]
+nutrition       =   4^7
 [position.json] 
 [drawable.json]
 ascii_id	=	"BREAD"

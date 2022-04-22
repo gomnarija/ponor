@@ -1,0 +1,8 @@
+{
+	"component": "hunger", 
+	"fields": 
+	{
+		"max_hunger": 100,
+		 "amount": 0
+	}
+}
