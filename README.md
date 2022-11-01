@@ -1,4 +1,4 @@
-IN DEVELOPMENT<br>
+ABANDONED<br>
 <img src="https://i.imgur.com/eTfVYoj.png" alt="ponor" width=500 height=270\>
 
 Classic [roguelike](http://roguebasin.com) inspired by [Serbian epic poetry](https://en.wikipedia.org/wiki/Serbian_epic_poetry). 
